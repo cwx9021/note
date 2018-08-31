@@ -1,0 +1,333 @@
+##################################################
+IP地址配置方式：
+        1.手动配置
+    2.DHCP自动获取IP地址（前提网络里必须要有DHCP服务器）
+
+DNS服务器：将域名解析为对应IP地址
+
+    为了方便记忆网站，网站的推广
+
+
+网关地址：一个网络到另一个网络的关口（路由器）
+
+#####################################################
+
+Linux是一种操作系统
+
+操作系统：一堆软件的集合，计算机硬件正常合理工作
+
+Unix/Linux发展史
+
+• UNIX诞生, 1970-1-1
+
+Linux的诞生，Linus Torwalds
+
+
+Linux系统内核
+       版本号:主版本.次版本.修订号
+
+        内核：调配所有的硬件
+
+       用户 --------> 内核 --------> 硬件
+
+• 是一套公开发布的完整Linux系统
+  – Linux内核 + 各种应用程序
+
+Linux发行版本
+• 发行版的名称/版本由发行方决定
+– Red Hat Enterprise Linux 5/6/7
+– Suse Linux Enterprise 12
+– Debian Linux 7.8
+– Ubuntu Linux 14.10/15.04
+
+####################################################
+虚拟机安装RHEL7.4操作系统
+
+1.虚拟计算的硬件
+
+  Ctrl+Alt ：鼠标回到真机
+
+
+   软件包选择：带GUI的服务器
+
+
+
+如何使用硬盘?
+• 一块硬盘的“艺术”之旅
+– 物理硬盘==>分区规划==>格式化==>读/写文档
+
+– 毛坯楼层 ==>打隔断==>装修==>入驻
+
+格式化：  数据在空间，存储的规则 （文件系统）
+
+
+文件系统： ext4(RHEL6)  xfs(RHEL7)
+
+         SWAP,交换空间(虚拟内存)：缓解真实物理内存的压力
+
+
+#####################################################
+
+Linux目录结构：树型结构
+• 最顶层为根目录(/)
+
+  根目录(/)：Linux所有数据都在此目录下（Linux系统的起点）
+
+  路径：/root/abc/test.txt
+
+ /dev：所有设备相关的文件
+
+
+硬盘标识的方法：
+
+   hd,表示IDE设备
+   sd,表示SCSI设备
+   vd,表示虚拟化设备（只在虚拟机里出现）
+
+   /dev/hda1   /dev/hdb2     /dev/hdc3      /dev/hdd1
+
+   /dev/sda1 
+  
+   /dev/sdb2 : SCSI类型的设备，第二块硬盘，第二个分区
+
+######################################################
+命令行基本操作
+
+• 控制台切换 ( Ctrl + Alt + Fn 组合键)
+– tty1:图形桌面
+– tty2 ~ tty6:字符控制台
+
+图形命令行：右键“ 打开终端”
+
+
+#####################################################
+• 命令行提示标识的含义
+– [当前用户@主机名 工作目录]$
+
+– 若当前用户是root,则最后一个字符为 #
+[root@svr7 桌面]#
+– 否则,最后一个字符为 $
+[teacher@svr7 桌面]$
+
+####################################################
+
+查看及切换目录
+• pwd — Print Working Directory
+– 用途:显示当前所在位置
+
+
+• cd — Change Directory
+– 用途:切换工作目录
+– 格式:cd [目标文件夹位置]
+
+
+• ls — List
+– 格式:ls [选项]... [目录或文件名]...
+
+  蓝色:目录
+  黑色：文本文件
+  青色：快捷方式
+          
+
+[root@localhost /]# pwd            #显示当前所在路径
+[root@localhost /]# cd   /         #切换到根目录下
+[root@localhost /]# pwd           
+[root@localhost /]# ls             #查看当前路径内容
+
+[root@localhost /]# cd  /boot
+[root@localhost boot]# pwd
+[root@localhost boot]# ls
+ 
+[root@localhost boot]# cd  /dev
+[root@localhost dev]# pwd
+[root@localhost dev]# ls
+
+[root@localhost dev]# cd  /etc
+[root@localhost etc]# pwd
+[root@localhost etc]# ls
+
+[root@localhost etc]# ls  /root
+
+快捷键：Ctrl + l  清屏
+
+########################################################
+cat：查看文本文件内容
+
+[root@localhost /]# cat /etc/redhat-release   #查看系统版本
+Red Hat Enterprise Linux Server release 7.4 
+
+[root@localhost /]# cat /root/anaconda-ks.cfg
+
+[root@localhost /]# cat /etc/passwd
+
+
+• 命令行的一般格式
+–   命令字        [选项]...          [参数1]      [参数2]...
+
+   cat       -n         /etc/redhat-release
+
+#####################################################     
+• ls — List
+– 格式:ls [选项]... [目录或文件名]...
+
+• 常用命令选项
+– -l :以长格式显示 ,显示目录内容的详细信息
+
+[root@localhost /]# ls   -l    /root
+ 
+[root@localhost /]# cat   -n    /etc/redhat-release
+
+[root@localhost /]# uname   -r     #列出内核版本
+
+[root@localhost /]# ls   -l    /boot
+
+[root@localhost /]# ls   -l   /etc/redhat-release
+
+#####################################################
+请在真机上操作
+• 列出CPU处理器信息
+[root@svr7 桌面]# lscpu
+
+• 检查内存大小、空闲情况
+[root@svr7 桌面]# cat  /proc/meminfo
+
+
+
+• 列出当前系统的主机名称
+[root@A ~]# hostname
+
+[root@A ~]# hostname A.tedu.cn
+[root@A ~]# hostname
+  
+   打开新的图形终端窗口，会刷新主机名
+  
+
+• 列出IP信息
+[root@A ~]# ifconfig
+[root@A ~]# ifconfig  eth0  192.168.1.1  #为eth0临时配置IP地址
+[root@A ~]# ifconfig 
+[root@A ~]# ping 192.168.1.1
+
+  127.0.0.1：永远代表本机
+
+[root@A ~]# ping 127.0.0.1
+ Ctrl + c：结束正在运行的指令
+
+#################################################
+
+• 关机:poweroff
+[root@svr7 ~]# poweroff
+
+• 重启:reboot
+[root@svr7 ~]# reboot
+
+#######################################################
+
+• mkdir — Make Directory
+– 格式:mkdir   [/路径/]目录名...
+
+[root@A ~]# mkdir /opt/nsd01
+[root@A ~]# ls /opt/
+
+[root@A ~]# mkdir  /root/nsd02   /mnt/nsd03
+[root@A ~]# ls /root/
+
+[root@A ~]# ls /mnt/
+
+• touch命令
+– 用途:新建空文件
+– 格式:touch 文件名...
+
+[root@A opt]# touch /opt/1.txt
+[root@A opt]# ls /opt/
+
+[root@A opt]# touch  /opt/2.txt  /mnt/3.txt
+[root@A opt]# ls /opt/
+[root@A opt]# ls /mnt/
+
+专门用于查看内容较多的文件
+
+[root@A opt]# less /etc/passwd
+           按上 下键可以滚动
+           输入  /root  可以全文查找root
+           按 q 退出
+
+
+• head、tail 命令
+– 格式:
+   head -数字  文件名
+   tail -数字  文件名
+[root@A opt]# head -1 /etc/passwd
+[root@A opt]# head -2 /etc/passwd
+
+[root@A opt]# tail -1 /etc/passwd
+[root@A opt]# tail -2 /etc/passwd
+
+[root@A opt]# head  /etc/passwd   #默认显示前10行
+[root@A opt]# tail  /etc/passwd   #默认显示后10行
+
+[root@A opt]# head -12 /etc/passwd  #显示前12行
+[root@A opt]# tail -13 /etc/passwd  #显示后13行
+
+• grep工具
+– 用途:输出包含指定字符串的行
+– 格式:grep  字符串    目标文件
+
+[root@A opt]# grep  root  /etc/passwd
+
+[root@A opt]# grep  bin   /etc/passwd
+
+[root@A opt]# grep  sbin  /etc/passwd
+
+[root@A opt]# grep  lisi  /etc/passwd
+
+[root@A opt]# grep -n root  /etc/passwd   #显示原文行号
+
+
+#######################################################
+ 以 / 开始的绝对路径
+ 以当前为参照的相对路径
+
+[root@A /]# cd  /etc/pki/
+[root@A pki]# ls
+[root@A pki]# cd  /etc/pki/java
+[root@A java]# pwd
+
+[root@A java]# cd  /etc/pki/
+[root@A pki]# pwd
+[root@A pki]# ls
+
+[root@A pki]# cd   java
+[root@A java]# pwd
+
+######################################################
+
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

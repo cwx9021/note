@@ -1,0 +1,167 @@
+案例练习,准备:
+            rht-vmctl  reset  classroom
+            rht-vmctl  reset  server
+	       rht-vmctl  reset  desktop
+######################################################
+
+案例1:指定yum软件源
+为 server0 指定可用的 yum 软件源
+– YUM软件库的地址为 http://classroom.example.com/content/rhel7.0/x86_64/dvd/
+– 将此配置为虚拟机 server0 的默认软件仓库
+– 确认可用的仓库列表
+– 利用yum仓库安装xeyes
+[root@server0 ~]# yum repolist all
+已加载插件：langpacks
+rhel_dvd                                                 | 4.1 kB     00:00     
+(1/2): rhel_dvd/group_gz                                   | 134 kB   00:00     
+(2/2): rhel_dvd/primary_db                                 | 3.4 MB   00:00     
+源标识                  源名称                                       状态
+rhel_dvd                Remote classroom copy of dvd                 启用: 4,305
+repolist: 4,305
+[root@server0 ~]# yum -y install xeyes
+已加载插件：langpacks
+正在解决依赖关系
+--> 正在检查事务
+---> 软件包 xorg-x11-apps.x86_64.0.7.7-6.el7 将被 安装
+--> 正在处理依赖关系 libXaw.so.7()(64bit)，它被软件包 xorg-x11-apps-7.7-6.el7.x86_64 需要
+--> 正在检查事务
+---> 软件包 libXaw.x86_64.0.1.0.11-6.1.el7 将被 安装
+--> 解决依赖关系完成
+
+依赖关系解决
+
+================================================================================
+ Package              架构          版本                  源               大小
+================================================================================
+正在安装:
+ xorg-x11-apps        x86_64        7.7-6.el7             rhel_dvd        304 k
+为依赖而安装:
+ libXaw               x86_64        1.0.11-6.1.el7        rhel_dvd        189 k
+
+事务概要
+================================================================================
+安装  1 软件包 (+1 依赖软件包)
+
+总下载量：493 k
+安装大小：1.2 M
+Downloading packages:
+(1/2): libXaw-1.0.11-6.1.el7.x86_64.rpm                    | 189 kB   00:00     
+(2/2): xorg-x11-apps-7.7-6.el7.x86_64.rpm                  | 304 kB   00:00     
+--------------------------------------------------------------------------------
+总计                                               2.0 MB/s | 493 kB  00:00     
+Running transaction check
+Running transaction test
+Transaction test succeeded
+Running transaction
+  正在安装    : libXaw-1.0.11-6.1.el7.x86_64                                1/2 
+  正在安装    : xorg-x11-apps-7.7-6.el7.x86_64                              2/2 
+  验证中      : xorg-x11-apps-7.7-6.el7.x86_64                              1/2 
+  验证中      : libXaw-1.0.11-6.1.el7.x86_64                                2/2 
+
+已安装:
+  xorg-x11-apps.x86_64 0:7.7-6.el7                                              
+
+作为依赖被安装:
+  libXaw.x86_64 0:1.0.11-6.1.el7                                                
+
+完毕！
+
+
+
+
+案例2：chmod权限设置
+    1）以root用户新建/nsddir/目录，在该目录下新建文件readme.txt
+    2）使用户zhangsan能够在/nsddir/目录下创建/删除子目录
+    3）使用户zhangsan能够修改/nsddir/readme.txt文件的容
+[root@server0 ~]# mkdir /nsddir
+[root@server0 ~]# useradd zhangsan
+[root@server0 ~]# chmod o+w /nsddir
+[root@server0 ~]# su - zhangsan
+[zhangsan@server0 ~]$ mkdir /nsddir/leilei
+[zhangsan@server0 ~]$ echo nishishui > /nsddir/readme.txt 
+
+  
+ 
+案例3：chown归属设置
+    1）新建/tarena1目录
+	a）将属主设为gelin01，属组设为tarena组
+	b）使用户gelin01对此目录具有rwx权限，其他人对此目录无任何权限
+
+    2）使用户gelin02能进入、查看/tarena1文件夹（提示：将gelin02加入所属组）
+
+    3）新建/tarena2目录
+	a）将属组设为tarena
+	b）使tarena组的任何用户都能在此目录下创建、删除文件
+
+    4）新建/tarena/public目录
+	a）使任何用户对此目录都有rwx权限
+	b）拒绝zhangsan进入此目录，对此目录无任何权限
+[root@server0 ~]# mkdir /tarena1
+[root@server0 ~]# chown gelin01:tarena /tarena1
+[root@server0 ~]# ls -ld /tarena1
+[root@server0 ~]# chmod u+rwx /tarena1
+drwxr-xr-x. 2 gelin01 tarena 6 Jul  5 18:59 /tarena1
+[root@server0 ~]# useradd gelin02
+[root@server0 ~]# gpasswd -a gelin02 tarena
+Adding user gelin02 to group tarena
+[root@server0 ~]# ls -ld /tarena1
+drwxr-xr-x. 2 gelin01 tarena 6 Jul  5 18:59 /tarena1
+[root@server0 ~]# chmod g+rx /tarena1
+[root@server0 ~]# su - lelin02
+su: user lelin02 does not exist
+[root@server0 ~]# su - gelin02
+[gelin02@server0 ~]$ cd /tarena1
+[gelin02@server0 tarena1]$ ls /tarena1/
+[gelin02@server0 tarena1]$ 
+[root@server0 /]# setfacl -m u:zhangsan:--- /tarena/public/
+[root@server0 /]# su - zhangsan
+Last login: Thu Jul  5 18:58:12 CST 2018 on pts/1
+[zhangsan@server0 ~]$ cd /tarena/public/
+-bash: cd: /tarena/public/: Permission denied
+[zhangsan@server0 ~]$ cd /tarena
+[zhangsan@server0 tarena]$ cd /tarena/public
+-bash: cd: /tarena/public: Permission denied
+[zhangsan@server0 tarena]$
+
+
+
+
+案例4:权限设置
+	1、创建文件夹/data/test,设置目录的访问权限，使所有者和所属组具备读写执行的权限；其他人无任何权限。
+	2、递归修改文件夹/data/test的归属使所有者为zhangsan，所属组为tarena。
+	3、请实现在test目录下，新建的所有子文件或目录的所属组都会是tarena。
+	4、为lisi创建ACL访问权限，使得lisi可以查看/etc/shadow文件
+[root@server0 /]# mkdir -p /data/tets
+[root@server0 /]# chmod ug=rwx /data/tets
+[root@server0 /]# chmod o=--- /data/tets/
+[root@server0 /]# chown -R zhangsan:tarena /data/tets/
+[root@server0 /]# chmod g+s /data/tets/
+[root@server0 /]# ls -ld /data/tets/
+drwxrws---. 2 zhangsan tarena 6 Jul  5 19:23 /data/tets/
+[root@server0 /]# ls /home/
+gelin01  gelin02  student  zhangsan
+[root@server0 /]# useradd lisi
+[root@server0 /]# setfacl -m u:lisi:r-x /etc/shadow
+[root@server0 /]# ls -ld /etc/passwd
+-rw-r-xr--+ 1 root root 2181 Jul  5 19:33 /etc/shadow
+
+
+案例5：绑定到LDAP验证服务
+
+ –  使用系统 classroom.example.com 提供的LDAP服务
+ –  验证服务的基本DN是：dc=example,dc=com
+ –  账户信息和验证信息都是由 LDAP 提供的
+ –  连接要使用证书加密，证书可以在下面的链接下载：
+      http://classroom.example.com/pub/example-ca.crt 
+ –  确认本地可以识别ldapuser0用户
+[root@server0 ~]# yum -y install sssd
+yum  -y install authconfig-gtk.x86_64 0:6.2.8-8.el7
+[root@server0 ~]# authconfig-gtk
+[root@server0 ~]# systemctl restart sssd
+[root@server0 ~]# systemctl enable sssd
+[root@server0 ~]# id ldapuser0
+uid=1700(ldapuser0) gid=1700(ldapuser0) 组=1700(ldapuser0)
+[root@server0 ~]# grep ldapuser0 /etc/passwd
+[root@server0 ~]# cat /etc/passwd | grep ldapuser0 
+[root@server0 ~]# vim /etc/passwd | less
+

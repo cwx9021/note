@@ -1,0 +1,42 @@
+1，vim  /root/.bashrc
+  i , alias c='rht-vmctl reset classroom'
+2,vim  /root/.bashrc
+  i,  alias s='rht-vmctl reset server'
+3,vim  /root/.bashrc
+  i,   alias d='rht-vmctl reset desktop'
+
+二。。
+1,mkdir /mnt/public
+2,trouch /mnt/public/liunx.txt
+   vim /mnt/public/liunx.txt
+    i,study liunx 
+3,cp /man/public/linux.txt /root/study.txt
+4, vim /etc/hostname
+     www.qq.com
+5,cp /etc/passwd  /etc/resol.conf  /etc/hostname /mnt/public
+6,mv  /mnt/public/hostname  /mnt/public/stu.txt
+7,mkdir -p /mnt/public/test/vm
+8,cp /root/vm* /mnt/public/test/vm
+9,cp -r /home /mnt/public/test
+
+三，
+1，ls /
+2,ls /etc/*tab
+3. ls -hl etc/resolv.conf
+4, ls -lh etc/sysconfig/network-scripts/ifcfg-eth0
+5,head -4 etc/sysconfig/network-scripts/ifcfg-eth0
+
+四
+1yum -config-manager--add-repo
+   http://classroom.example.com/content/rhel7.0/x86_64/dvd/
+2yum repolist
+3,name=  .baseurl=  .enabled=   .gpgcheck=
+4,yum -y install sssd
+5,yum -y install xeyes
+
+五.
+1,nmcli connection modify 'system etho' ipv4.method manual
+   ipv4.addresses '172.25.0.100/24 172.25.0.254'connection 
+    autoconnect yes
+2,vim /etc/resolv.conf
+   i  , 172.25.254.254

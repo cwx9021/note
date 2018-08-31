@@ -1,0 +1,251 @@
+案例练习,准备:
+            rht-vmctl  reset  classroom
+            rht-vmctl  reset  server
+	        rht-vmctl  reset  desktop
+######################################################
+
+案例1:为虚拟机 server 配置以下永久的静态地址参数
+– 主机名:server0.example.com
+– IP地址:172.25.0.11
+– 子网掩码:255.255.255.0
+– 默认网关:172.25.0.254
+– DNS服务器:172.25.254.254
+[root@server0 ~]# echo server0.example.com > /etc/hostname
+[root@server0 ~]# cat /etc/hostname
+server0.example.com
+[root@server0 ~]# nmcli connection modify 'System eth0' ipv4.method manual ipv4.addresses '172.25.0.11/24 172.25.0.254' ipv4.dns 172.25.254.254 connection.autoconnect yes
+
+[root@server0 ~]# nmcli connection up 'System eth0' 
+[root@server0 ~]# cat /etc/sysconfig/network-scripts/ifcfg-eth0 
+DEVICE=eth0
+BOOTPROTO=none
+ONBOOT=yes
+TYPE=Ethernet
+USERCTL=yes
+IPV6INIT=no
+PERSISTENT_DHCLIENT=1
+IPADDR0=172.25.0.11
+PREFIX0=24
+GATEWAY0=172.25.0.254
+DNS1=172.25.254.254
+DEFROUTE=yes
+IPV4_FAILURE_FATAL=no
+NAME="System eth0"
+UUID=5fb06bd0-0bb0-7ffb-45f1-d6edd65f3e03
+
+
+案例2：复制、粘贴、移动
+ 以root用户新建/example/目录，在此目录下新建nsd.txt文件，并进一步完成下列操作
+
+ 1）将“I love Study”写入到文件nsd.txt 
+ 2）将nsd.txt重命名为mylove.txt
+ 3）将/etc/passwd、/boot、/etc/group同时拷贝到/example/目录下
+ 4）将ifconfig命令的前两行内容，追加写入mylove.txt
+ 5）将主机名永久配置文件，拷贝到/example/目录下
+ 6）将DNS永久配置文件，拷贝到/example/目录下
+ 7）将开机自动挂载配置文件，拷贝到/example/目录下
+[root@server0 ~]# mkdir /example
+[root@server0 ~]# echo 'I love Study' > /example/nsd.txt
+[root@server0 ~]# cp -rpf /etc/passwd /boot  /etc/group   /example
+[root@server0 ~]# mv /example/nsd.txt  /example/mylove.txt
+[root@server0 ~]# ifconfig | head -2 >> /example/mylove.txt
+[root@server0 ~]# cp /etc/hostname  /example
+[root@server0 ~]# cp /etc/resolv.conf  /example/
+[root@server0 ~]# cp /etc/fstab  /example/
+[root@server0 ~]# ls /example/
+boot  fstab  group  hostname  mylove.txt  passwd  resolv.conf
+[root@server0 ~]# cat /example/mylove.txt  
+I love Study
+eth0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 172.25.0.11  netmask 255.255.255.0  broadcast 172.25.0.255
+
+
+案例3:在server上操作,（MBR分区模式）规划分区
+ 添加一块80G的硬盘并规划分区：
+   划分2个10G的主分区；1个12G的主分区;1个20G的逻辑分区。
+ [root@server0 ~]# lsblk /dev/vdc
+NAME MAJ:MIN RM SIZE RO TYPE MOUNTPOINT
+vdc  253:32   0  80G  0 disk 
+ [root@server0 ~]# fdisk -l /dev/vdc | tail -6
+   设备 Boot      Start         End      Blocks   Id  System
+/dev/vdc1            2048    20973567    10485760   83  Linux
+/dev/vdc2        20973568    41945087    10485760   83  Linux
+/dev/vdc3        41945088    67110911    12582912   83  Linux
+/dev/vdc4        67110912   167772159    50330624    5  Extended
+/dev/vdc5        67112960   109055999    20971520   83  Linux
+ 
+案例4:在server上操作,分区使用
+
+1、案例3中新添加80G硬盘的第一个逻辑分区
+– 格式化成xfs文件系统，实现该分区开机自动挂载，挂载点为/mnt/xfs
+[root@server0 ~]# mkfs.xfs /dev/vdc5
+[root@server0 ~]# blkid /dev/vdc5
+/dev/vdc5: UUID="f6b4b807-b9fe-47aa-b155-dd279c88a0fe" TYPE="xfs" 
+[root@server0 ~]# mkdir -p /mnt/xfs
+[root@server0 ~]# mount /dev/vdc5  /mnt/xfs
+[root@server0 ~]# df -hT /mnt/xfs
+文件系统       类型  容量  已用  可用 已用% 挂载点
+/dev/vdc5      xfs    20G   33M   20G    1% /mnt/xfs
+[root@server0 ~]# vim /etc/fstab
+[root@server0 ~]# tail -2 /etc/fstab
+UUID=9bf6b9f7-92ad-441b-848e-0257cbb883d1 /     xfs     defaults    1 1
+/dev/vdc5                     /mnt/xfs          xfs     defaults   0   0
+
+2、案例3中新添加80G硬盘的第一个主分区
+– 完成开机自动挂载，挂载点/mnt/mypart,文件系统为ext4
+root@server0 ~]# mkdir /mnt/mypart
+[root@server0 ~]# mkfs.ext4 /dev/vdc1
+[root@server0 ~]# blkid /dev/vdc1
+/dev/vdc1: UUID="6480904e-d720-4d71-bbce-e592bf1dc6f4" TYPE="ext4" 
+[root@server0 ~]# mount /dev/vdc1 /mnt/mypart/
+[root@server0 ~]# df -hT /mnt/mypart/
+文件系统       类型  容量  已用  可用 已用% 挂载点
+/dev/vdc1      ext4  9.8G   37M  9.2G    1% /mnt/mypart
+[root@server0 ~]# vim /etc/fstab
+[root@server0 ~]# tail /etc/fstab
+# /etc/fstab
+# Created by anaconda on Wed May  7 01:22:57 2014
+#
+# Accessible filesystems, by reference, are maintained under '/dev/disk'
+# See man pages fstab(5), findfs(8), mount(8) and/or blkid(8) for more info
+#
+UUID=9bf6b9f7-92ad-441b-848e-0257cbb883d1 /     xfs     defaults    1 1
+/dev/vdc5                     /mnt/xfs          xfs     defaults   0   0
+/dev/vdc1              /mnt/mypart  ext4   defaults  0  0
+
+
+案例5:虚拟机 server0操作，构建 LVM 存储
+
+– 新建一个名为 systemvg 的卷组 
+– 在此卷组中创建一个名为 vo 的逻辑卷，大小为8G 
+– 将逻辑卷 vo 格式化为 xfs 文件系统 
+– 将逻辑卷 vo 挂载到 /vo 目录，并在此目录下建立一个测试文件 votest.txt，内容为“I AM KING.” 
+– 实现逻辑卷vo开机自动挂载到/vo
+[root@server0 ~]# partprobe
+[root@server0 ~]# lsblk 
+NAME   MAJ:MIN RM SIZE RO TYPE MOUNTPOINT
+├─vdc1 253:33   0  10G  0 part /mnt/mypart
+├─vdc2 253:34   0  10G  0 part 
+├─vdc3 253:35   0  12G  0 part 
+├─vdc4 253:36   0   1K  0 part 
+└─vdc5 253:37   0  20G  0 part /mnt/xfs
+root@server0 ~]# vgcreate systemvg /dev/vdc2
+[root@server0 ~]# lvcreate -L 8G -n vo systemvg
+[root@server0 ~]# mkfs.xfs /dev/systemvg/vo 
+[root@server0 ~]# blkid /dev/systemvg/vo
+/dev/systemvg/vo: UUID="cc595b4b-305c-4d6e-a4dc-5aee02df1edf" TYPE="xfs" 
+
+[root@server0 ~]# mkdir /vo
+[root@server0 ~]# mount /dev/systemvg/vo /vo
+[root@server0 ~]# echo 'I AM KING' > /vo/votest.txt
+[root@server0 ~]# cat /vo/votest.txt
+I AM KING
+[root@server0 ~]# echo '/dev/systemvg/vo   /vo  xfs  default 0 0' >> /etc/fstab 
+[root@server0 ~]# tail -2 /etc/fstab
+/dev/vdc1              /mnt/mypart  ext4   defaults  0  0
+/dev/systemvg/vo   /vo  xfs  default 0 0
+[root@server0 ~]# df -hT
+
+案例6:虚拟机 server0操作，构建 LVM 存储(修改PE大小)
+– 新的逻辑卷命名为 database，其大小为50个PE的大小，属于 datastore 卷组 
+– 在 datastore 卷组中其PE的大小为1M
+– 使用 EXT4 文件系统对逻辑卷 database 格式化，此逻辑卷应该在开机时自动挂载到 /mnt/database 目录
+ [root@server0 ~]# vgcreate -s 1M  datebase /dev/vdc3
+[root@server0 ~]# lvcreate -L 50 -n datebase datestore 
+[root@server0 ~]# lvs
+[root@server0 ~]# mkfs.ext4 /dev/datestore/datebase 
+[root@server0 ~]# mkdir /mnt/database
+
+[root@server0 ~]# vim /etc/fstab 
+[root@server0 ~]# tail -2 /etc/fstab
+/dev/systemvg/vo   /vo  xfs  default 0 0
+/dev/datestore/datebase   /mnt/database  ext4 defaults  0  0
+[root@server0 ~]# mount -a
+[root@server0 ~]# df -hT | tail -2
+/dev/mapper/systemvg-vo        xfs       8.0G   33M  8.0G    1% /vo
+/dev/mapper/datestore-datebase ext4       45M  1.1M   40M    3% /mnt/database
+
+
+案例7:虚拟机 server0操作，扩展逻辑卷
+
+– 将/dev/systemvg/vo逻辑卷的大小扩展到20G
+
+[root@server0 ~]# lvs /dev/systemvg/vo 
+  LV   VG       Attr       LSize Pool Origin Data%  Move Log Cpy%Sync Convert
+  vo   systemvg -wi-ao---- 8.00g   
+[root@server0 ~]# df -hT /mnt/xfs
+文件系统       类型  容量  已用  可用 已用% 挂载点
+/dev/vdc5      xfs    20G   33M   20G    1% /mnt/xfs
+[root@server0 ~]# umount /mnt/xfs/
+[root@server0 ~]# lsblk  /dev/vdc5
+NAME MAJ:MIN RM SIZE RO TYPE MOUNTPOINT
+vdc5 253:37   0  20G  0 part 
+[root@server0 ~]# vgs /dev/systemvg
+  VG       #PV #LV #SN Attr   VSize  VFree
+  systemvg   1   1   0 wz--n- 10.00g 2.00g
+[root@server0 ~]# vgextend systemvg /dev/vdc5 
+[root@server0 ~]# lvextend -L 20G /dev/systemvg/vo 
+  Extending logical volume vo to 20.00 GiB
+  Logical volume vo successfully resized
+[root@server0 ~]# lvs /dev/systemvg/vo
+  LV   VG       Attr       LSize  Pool Origin Data%  Move Log Cpy%Sync Convert
+  vo   systemvg -wi-ao---- 20.00g    
+[root@server0 ~]# vgs /dev/systemvg
+  VG       #PV #LV #SN Attr   VSize  VFree
+  systemvg   2   1   0 wz--n- 29.99g 9.99g
+[root@server0 ~]# partprobe 
+[root@server0 ~]# vgs /dev/systemvg
+  VG       #PV #LV #SN Attr   VSize  VFree
+  systemvg   2   1   0 wz--n- 29.99g 9.99g
+[root@server0 ~]# lvs /dev/systemvg/vo 
+  LV   VG       Attr       LSize  Pool Origin Data%  Move Log Cpy%Sync Convert
+  vo   systemvg -wi-ao---- 20.00g     
+
+
+
+案例8: vim文本编辑器练习，命令模式下的基本操作（重点知识）
+
+ 1）将/etc/passwd的前20行，写入到文件/opt/pass20.txt 
+###########################:r /etc/passwd
+[root@server0 ~]# head -20 /etc/passwd > /opt/pass20.txt
+[root@server0 ~]# cat /opt/pass20.txt
+
+ 2）将/etc/shadow的前10行,追加写入到文件/opt/pass20.txt 
+[root@server0 ~]# head -10 /etc/shadow >> /opt/pass20.txt
+
+ 3）利用/opt/pass20.txt，进项如下操作：
+    – 命令模式下移动光标：键盘上下左右键、Home键、End键
+    – 命令模式下行间跳转：到全文的第一行（1G或gg）、到全文的最后一行（G）、到全文的第10行（10G）
+    
+    – 命令模式下复制、粘贴：
+    	 复制1行（yy）、复制3行（3yy）
+    	 粘贴到当前行之后（小写p）
+
+    – 命令模式下删除：
+    	 删除单个字符（x）
+    	 删除到行首（d^）、删除到行尾（d$）
+    	 删除1行（dd）、删除3行（3dd）
+         
+    
+    – 命令模式下查找关键词： 
+    	 搜索（/word）切换结果（n、N）
+
+    – 补充：在命令模式下大写的C，可以删除光标之后，并且进入输入模式
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,53 @@
+1.vim  /etc/yum.repos.d/*.repo
+  [ * ]
+ name=*
+ baseurl=http://classroom.example.com/content/rhel7.0/x86_64/dvd/
+ enabled=0
+ gpgcheck=1
+保存退出后  
+ yum repolist
+ yum -y install xeyes
+
+2.mkdir /nsddir
+  touch /nsddir/redme.txt
+ 
+  setfacl -m u:zhangsan:wx /nsddir
+
+  setfacl -m u:zhangsan:w  /nsddir/readme.txt
+
+3.mkdir /tarenal
+  chown gelin01:tarena  /tarenal
+  chmod u=rwx,o=--- /tarenal
+
+  gpasswd -a gelin02 tarena
+  chmod g=rx /tarenal
+
+  mkdir /tarena2
+  chown  :tarena  /tarena2
+  chmod g=wx /tarena2
+
+  mkdir -p  /tarena/public
+  chmod ugo=rwx /tarena/public
+  setfacl -m u:zhangsan:---  /tarena/public
+
+4.mkdir -p /data/test
+  chmid u=rwx,g=rwx,o=--- /data/test
+
+  chmod -R zhangsan:tarena  /data/test
+
+  chmod g+s /data/test
+
+  setfacl -m u:lisi:rx  /etc/shadow
+
+5.yum -y install sssd
+  yum -y install authconfig-gtk
+   dc:example,dc=com
+    classroom.example.com
+   http://classroom.example.com/pub/example-ca.crt
+  systemctl restart sssd
+  systemctl enable sssd
+
+  id ldapuser0
+
+
+  

@@ -1,0 +1,343 @@
+教学环境介绍
+
+每个学员机上有三台预先配置好的虚拟机
+ – server —— 作为练习用服务器
+ – desktop —— 作为练习用客户机
+ – classroom —— 提供网关/DNS/软件素材/DHCP服务器等资源
+
+开机顺序:
+     首先 classroom 开启,在开启server与desktop
+
+#####################################################
+在真机上操作:
+1.先重置资源服务器
+[root@room9pc13 ~]# rht-vmctl reset classroom
+
+[root@room9pc13 ~]# rht-vmctl reset server
+[root@room9pc13 ~]# rht-vmctl reset desktop
+
+2.进行登陆
+ 利用root 密码redhat   登陆虚拟机server与虚拟机desktop
+
+3.虚拟机基本信息
+     虚拟机Server
+        1)查看操作系统版本: RHEL7.0
+        2)查看eth0的IP地址:172.25.0.11/24
+        3)查看主机名:server0.example.com
+     虚拟机desktop
+        1)查看操作系统版本: RHEL7.0
+        2)查看eth0的IP地址:172.25.0.10/24
+        3)查看主机名:desktop0.example.com
+
+4.默认真机可以与, 两台虚拟机Server/虚拟机desktop  进行通信
+
+#####################################################
+真机远程管理虚拟机
+ 1.前提可以ping通
+
+ 2.远程管理  ssh  用户名@对方IP地址
+[root@room9pc01 ~]# ssh root@172.25.0.11
+
+[root@server0 ~]# hostname
+[root@server0 ~]# ifconfig 
+[root@server0 ~]# exit      #退出远程管理回到真机
+
+
+ 补充: ctrl + shift  + t   新开一个终端
+
+3.远程管理选项  -X(大写)  在本机运行对方的图形程序
+
+[root@server0 ~]# exit 
+
+[root@room9pc01 ~]# ssh -X root@172.25.0.11
+
+[root@server0 ~]# firefox
+
+[root@server0 ~]# firewall-config    #防火墙的图形工具
+  
+########################################################
+制作永久的别名,方便远程管理
+ 
+真机:永久的别名配置文件/root/.bashrc (系统级配置文件)
+
+[root@room9pc01 ~]# vim  /root/.bashrc 
+
+ alias  gos='ssh  -X  root@172.25.0.11'
+ alias  god='ssh  -X  root@172.25.0.10'
+
+[root@room9pc01 ~]# 新开一个全新的终端
+
+#######################################################
+软件包的管理
+
+1.关闭虚拟机Server添加虚拟的光驱设备
+
+2.系统显示光盘内容
+[root@server0 ~]# mkdir  /dvd
+[root@server0 ~]# mount  /dev/cdrom   /dvd/
+mount: /dev/sr0 写保护，将以只读方式挂载
+[root@server0 ~]# ls  /dvd/
+[root@server0 ~]# ls  /dvd/Packages
+
+
+• RPM Package Manager,RPM包管理器
+– rpm -q   软件名...                               #查询软件是否安装
+– rpm -ivh 软件名-版本信息.rpm...    #安装软件包
+– rpm -e   软件名...                               #卸载软件包
+
+
+[root@server0 ~]# rpm -q firefox firefoxfirefox-24.5.0-1.el7.x86_64
+[root@server0 ~]# rpm -q zip
+zip-3.0-10.el7.x86_64
+
+[root@server0 ~]# rpm -q haha
+未安装软件包 haha 
+
+[root@server0 ~]# rpm -q net-tools
+net-tools-2.0-0.17.20131004git.el7.x86_64
+
+[root@server0 ~]# rpm -q mysql
+未安装软件包 mysql 
+[root@server0 ~]# rpm -q mariadb
+未安装软件包 mariadb
+
+[root@server0 ~]# rpm -q vsftpd    #查询是否安装
+未安装软件包 vsftpd 
+
+# rpm -ivh /dvd/Packages/vsftpd-3.0.2-22.el7.x86_64.rpm 
+
+[root@server0 ~]# rpm -q vsftpd    #查询是否安装成功
+vsftpd-3.0.2-22.el7.x86_64
+[root@server0 ~]# rpm -e vsftpd    #卸载软件程序
+[root@server0 ~]# rpm -q vsftpd    #查询是否卸载成功
+
+#######################################################
+软件包依赖关系
+
+错误：依赖检测失败：
+  bind = 32:9.9.4-50.el7 被 bind-    
+  chroot-32:9.9.4-50.el7.x86_64 需要
+
+####################################################
+Yum软件包仓库,自动解决依赖关系
+
+服务:为客户端安装软件包,并解决依赖关系
+
+服务端: 1.众多的软件包  2.仓库清单文件  3.共享的服务
+
+ 服务端:classroom.example.com搭建Web服务,共享光盘所有内容RHEL7.0
+
+ http://classroom.example.com/content/rhel7.0/x86_64/dvd/
+
+ 客户端: 书写配置文件/etc/yum.repos.d/*.repo
+             正确的文件与错误的文件会相互影响
+
+[root@server0 ~]# rm -rf /etc/yum.repos.d/*
+[root@server0 ~]# vim /etc/yum.repos.d/rhel7.repo
+        
+ [rhel7]          #仓库标识(可以随意写)
+ name=rhel7.0     #仓库描述信息(可以随意写)
+ baseurl=http://classroom.example.com/content/rhel7.0/x86_64/dvd/       #具体服务端访问位置
+ enabled=1        #是否启用该文件
+ gpgcheck=0       #是否检测签名认证
+
+[root@server0 ~]# yum  repolist    #列出仓库信息
+
+######################################################
+Yum使用
+
+   yum  -y  install  软件名
+
+[root@server0 ~]# yum  -y install  httpd
+[root@server0 ~]# yum  -y install  gcc
+[root@server0 ~]# yum  -y install  mariadb-server
+[root@server0 ~]# yum  -y install  sssd
+[root@server0 ~]# yum  -y install  system-config-kickstart
+
+[root@server0 ~]# yum  -y install  xeyes
+[root@server0 ~]# xeyes
+
+   yum   remove   软件名      #卸载
+
+   yum   search   关键字     #查询
+
+####################################################### 
+升级Linux内核
+
+只使用于虚拟机
+http://classroom.example.com/content/rhel7.0/x86_64/errata/Packages/kernel-3.10.0-123.1.2.el7.x86_64.rpm
+
+下载软件包
+• 使用wget下载工具,默认下载到当前
+– wget 软件包的URL网址
+
+[root@server0 ~]# wget http://classroom.example.com/content/rhel7.0/x86_64/errata/Packages/kernel-3.10.0-123.1.2.el7.x86_64.rpm  
+
+[root@server0 ~]# uname -r
+3.10.0-123.el7.x86_64
+
+# rpm -ivh  kernel-3.10.0-123.1.2.el7.x86_64.rpm 
+
+[root@server0 ~]# uname -r
+3.10.0-123.el7.x86_64
+[root@server0 ~]# reboot 
+[root@room9pc01 ~]# gos
+Last login: Tue Jul  3 15:38:14 2018 from 172.25.0.250
+[root@server0 ~]# uname -r
+3.10.0-123.1.2.el7.x86_64
+[root@server0 ~]# 
+#######################################################
+配置网络
+
+一  配置永久的主机名/etc/hostname
+[root@server0 ~]# vim /etc/hostname
+ A.tedu.cn
+[root@server0 ~]# cat /etc/hostname
+[root@server0 ~]# exit
+
+[root@room9pc01 ~]# gos
+[root@A ~]# hostname
+ A.tedu.cn
+[root@A ~]#
+
+######################################################
+二  配置永久  IP地址  子网掩码   网关地址
+
+网卡配置文件:/etc/sysconfig/network-scripts/ifcfg-eth0 
+
+命令配置
+nmcli connection
+
+1.查看命令识别的网卡名
+[root@A ~]# nmcli connection show 
+名称                  ...............
+System eth0  .........
+
+2.配置IP地址  子网掩码   网关地址
+[root@A ~]# nmcli connection modify  'System eth0'         
+  ipv4.method  manual                                   
+  ipv4.addresses  '172.25.0.110/24  172.25.0.254'       
+  connection.autoconnect   yes
+    
+    nmcli connection  修改   '网卡识别名称'
+    ipv4.方法  手工配置
+    ipv4.地址  ' ip地址/子网掩码    网关地址'
+        每次开机自动启用网络配置
+
+[root@A ~]# cat /etc/sysconfig/network-scripts/ifcfg-eth0 
+
+3.激活配置
+[root@A ~]# nmcli connection up 'System eth0'
+ 由于IP地址的变化,所以终端会失联,新开一个终端进行远程管理新的IP地址
+
+[root@room9pc01 ~]# ssh -X root@172.25.0.110
+[root@A ~]# 
+
+4.网关查看
+[root@A ~]# route
+..........   Gateway     .......... ..........
+ ..........           172.25.0.254      ..........
+
+#######################################################
+三  配置永久DNS地址,永久配置文件/etc/resolv.conf 
+
+
+[root@A ~]# vim /etc/resolv.conf 
+ nameserver  172.25.254.254
+
+[root@A ~]# cat /etc/resolv.conf
+
+ 验证:
+[root@A ~]# nslookup classroom.example.com
+[root@A ~]# nslookup server0.example.com
+[root@A ~]# nslookup desktop0.example.com
+
+########################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

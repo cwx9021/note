@@ -1,0 +1,168 @@
+案例练习,准备:
+            rht-vmctl  reset  classroom
+            rht-vmctl  reset  server
+	    rht-vmctl  reset  desktop
+######################################################
+
+案例1:为虚拟机 server 配置以下静态地址参数
+– 主机名:server0.example.com
+– IP地址:172.25.0.120
+– 子网掩码:255.255.255.0
+– 默认网关:172.25.0.254
+– DNS服务器:172.25.254.254
+
+第一步
+vim /etc/hostname,将主机名修改为server0.example.com，然后保存退出
+第二部
+查看网卡名称
+nmcli connection show
+第三步
+设置ip，子网掩码，网关
+nmcli connection modify '网卡名称' ipv4.method manurl ipv4.addresses '172.25.0.120/24 172.25.0.254'
+connection.autoconnect yes
+第四步
+让配置生效
+nmcli connction up
+第五步
+修改DNS
+vim /etc/resolv.conf         打开配置文件，删除全部内容
+nameserver 172.25.254.254    输入新内容，保存并退出
+第六步
+nslookup                     验证DNS是否工作正常
+
+
+案例2:指定yum软件源
+为 server0 指定可用的 yum 软件源
+– YUM软件库的地址为 http://classroom.example.com/content/rhel7.0/x86_64/dvd
+– 将此配置为虚拟机 server0 的默认软件仓库
+– 确认可用的仓库列表
+– 利用yum仓库安装system-config-kickstart 
+
+第一步
+rm -rf /etc/yum.repos.d/*               删除目录下的所有文件
+第二步
+vim /etc/yum.repos.d/rhel7.repo         创建rhel7.repo
+第三步
+进入编辑模式输入如下内容
+[rhel7]
+name=yum rhel7
+baseurl=http://classroom.example.com/content/rhel7.0/x86_64/dvd/   
+enabled=1
+gpgcheck=0
+保存并退出
+第四步
+yum repolist                               确认仓库列表
+第五步
+yum -y install  system-config-kickstart    安装
+
+
+
+案例3:grep基本用法
+    1）将/etc/passwd中包含root的行写入文件/opt/root.txt
+    2）将/etc/passwd中包含nologin的行追加写入文件/opt/root.txt
+
+1) grep root /etc/passwd > /opt/root.txt
+2) grep nologin /etc/passwd >> /opt/root.txt
+
+案例4:tar制作/释放归档压缩包(zcf、ztf、zxf、jcf、jtf、jxf、cf、tf）
+  首先创建/root/boothome/与/root/usrsbin/目录
+    1）备份/boot、/home这两个文件夹，保存为boothome.tar.gz文件
+    2）查看boothome.tar.gz文件内包含哪些内容 
+    3）将boothome.tar.gz释放到文件夹/root/boothome/下
+    4）备份/usr/sbin目录，保存为usrsbin.tar.bz2文件
+    5）查看usrsbin.tar.bz2文件内包含哪些内容
+    6）将usrsbin.tar.bz2释放到/root/usrsbin/文件夹下
+
+mkdir /root/boothome /root/usrsbin
+1) tar -zcf /root/boothome/boothome.tar.gz /boot /home
+2) tar -tf /root/boothome/boothome.tar.gz
+3) tar -xf /root/boothome/boothome.tar.gz -C /root/boothome
+4) tar -jcf /root/usrsbin/usrsbin.tar.bz2 /usr/sbin
+5) tar -tf /root/usrsbin/usrsbin.tar.bz2
+6) tar -xf /root/usrsbin/usrsbin.tar.ba2 -C /root/usrsbin 
+
+
+
+案例5：添加并测试用户账号
+    1）创建一个名为stu01的用户账号
+    2）检查/etc/passwd、/etc/shadow文件的最后一行
+    3）检查/home/新增加的宿主目录（家目录）
+    4）为用户stu01设置一个密码（123456）
+
+1) useradd stu01
+2) tail -1 /etc/passwd
+   tail -1 /etc/shadow
+3) ls /home
+4) echo 123456 | passwd --stdin stu01
+
+案例6：添加账号时设置不同属性
+    1）新建用户nsd01，宿主目录位于/opt/nsd01
+    2）新建系统账号sys01，将UID设为1234，登录Shell设为/sbin/nologin
+    3）为用户sys01设置密码，并测试是否能够登录
+    4）新建用户admin，将其基本组设为users，附加组设为adm、root
+
+1) useradd nsd01 -d /opt/nsd01
+2) useradd sys01 -u 1234 -s /sbin/nologin
+3) echo 123 | passwd --stdin sys01
+4）useradd admin -g users -G root
+   gpasswd -a admin adm
+
+案例7：passwd设置密码
+    1）给用户nsd01设置密码123456
+    2）采用--stdin方式将用户nsd01的密码设为654321
+
+1) echo 123456 | passwd --stdin nsd01
+2) echo 654321 | passwd --stdin nsd01
+
+案例8：usermod修改用户
+    1）新建一个用户nsd03，将宿主目录设为/opt/home03，并设置密码
+    2）设置nsd03密码为redhat
+    3）将用户nsd03的宿主目录改为/home/nsd03
+    4）将用户sys01的登录Shell改为/bin/bash
+
+1) useradd nsd03 -d /opt/home03
+   echo 123 | passwd --stdin nsd03
+2) echo redhat | paddwd --stdin nsd03
+3) usermod nsd03 -d /home/nsd03
+4) usermod sys01 -s /bin/bash
+
+案例9：组账号基本管理
+    1）新建组账号stugrp
+    2）为stugrp组添加三个成员用户（user01、root、zhangsan）
+    3）从stugrp组删除一个成员（user01）
+
+1) groupadd stugrp
+2) gpasswd -a user01 stugrp
+   gpasswd -a root stugrp
+   gpasswd -a zhangsan stugrp
+3) gpasswd -d user01 stugrp
+
+案例10：配置NTP网络时间客户端
+	配置虚拟机 server0，自动校对系统时间
+	NTP服务器位于 classroom.example.com 
+	此客户机的时间与NTP服务器的时间保持同步
+
+1,安装 chronyd 服务
+yum -y install chronyd
+2,修改配置文件 
+vim /etc/chrony.conf
+输入时间服务器域名或者IP地址,然后退出并保存
+server classroom.example.com iburst
+3,重起服务
+systemctl restart chronyd
+4,随机自起
+systemctl enable chronyd
+ 
+
+
+
+
+
+
+
+
+
+
+
+
+

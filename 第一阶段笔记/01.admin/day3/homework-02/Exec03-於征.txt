@@ -1,0 +1,149 @@
+
+案例：复制、删除、移动
+  1. 在目录/opt下创建一个子目录 nsd  
+[root@localhost opt]# mkdir -p /opt/nsd
+[root@localhost opt]# ls /opt/
+nsd
+
+  2. 在目录/opt/nsd/创建文件readme.txt,利用vim写入内容 I Love Linux
+root@localhost opt]# touch /opt/nsd/readme.txt
+[root@localhost opt]# vim /opt/nsd/readme.txt
+[root@localhost opt]# cat /opt/nsd/readme.txt
+I LOVE linux
+
+  3. 将/etc/passwd 和 /etc/resolv.conf同时拷贝到/opt/nsd目录下
+[root@localhost opt]# cp -r /etc/passwd /etc/resolv.conf /opt/nsd
+[root@localhost opt]# ls /opt/nsd/
+passwd  readme.txt  resolv.conf
+
+
+  4. 将文件 /etc/redhat-release复制到 /root/ 下，同时 改名为 version.txt 
+[root@localhost opt]# cp /etc/redhat-release  /root/version.txt
+[root@localhost opt]# ls /root/
+anaconda-ks.cfg       stu01        模板  文档  桌面
+initial-setup-ks.cfg  version.txt  视频  下载
+nsd02                 公共         图片  音乐
+
+
+
+  5. 将文件 /root/version.txt 移动到/opt/nsd/目录下 
+[root@localhost opt]# mv /root/version.txt  /opt/nsd/
+[root@localhost opt]# ls /root/
+anaconda-ks.cfg       nsd02  公共  视频  文档  音乐
+initial-setup-ks.cfg  stu01  模板  图片  下载  桌面
+[root@localhost opt]# ls /opt/nsd
+passwd  readme.txt  resolv.conf  version.txt
+
+
+  6. 将/home目录复制到/opt/nsd/目录下 
+[root@localhost opt]# cp -r /home /opt/nsd
+[root@localhost opt]# ls /opt/nsd
+home  passwd  readme.txt  resolv.conf  version.txt
+
+
+
+案例：ls命令练习
+  1. 查看根目录下内容
+[root@localhost opt]# ls /
+bin      dev  home   media  proc  sbin  tmp  vod
+boot     dvd  lib    mnt    root  srv   usr
+cartoon  etc  lib64  opt    run   sys   var
+
+  2. 显示根目录本身详细属性
+[root@localhost opt]# ls -l  /
+总用量 28
+lrwxrwxrwx.   1 root root    7 6月  30 11:02 bin -> usr/bin
+dr-xr-xr-x.   4 root root 4096 6月  30 11:24 boot
+drwxr-xr-x.   2 root root    6 7月   2 15:27 cartoon
+drwxr-xr-x.  21 root root 3280 7月   2 08:11 dev
+dr-xr-xr-x.   9 root root 4096 7月  11 2017 dvd
+drwxr-xr-x. 138 root root 8192 7月   2 11:44 etc
+drwxr-xr-x.   6 root root   55 7月   2 11:44 home
+lrwxrwxrwx.   1 root root    7 6月  30 11:02 lib -> usr/lib
+lrwxrwxrwx.   1 root root    9 6月  30 11:02 lib64 -> usr/lib64
+drwxr-xr-x.   2 root root    6 3月  10 2016 media
+drwxr-xr-x.   3 root root   19 6月  30 17:14 mnt
+drwxr-xr-x.   3 root root   17 7月   2 18:25 opt
+dr-xr-xr-x. 185 root root    0 7月   2 08:11 proc
+dr-xr-x---.  16 root root 4096 7月   2 18:42 root
+drwxr-xr-x.  40 root root 1260 7月   2 10:37 run
+lrwxrwxrwx.   1 root root    8 6月  30 11:02 sbin -> usr/sbin
+drwxr-xr-x.   2 root root    6 3月  10 2016 srv
+dr-xr-xr-x.  13 root root    0 7月   2 08:11 sys
+drwxrwxrwt.  22 root root 4096 7月   2 18:41 tmp
+drwxr-xr-x.  13 root root  155 6月  30 11:02 usr
+drwxr-xr-x.  20 root root  282 6月  30 11:27 var
+drwxr-xr-x.   3 root root   19 7月   2 15:27 vod
+
+
+  3. 切换到/boot目录，显示当前目录内容的详细属性，并加上易读的容量单位
+[root@localhost opt]# cd /boot/
+[root@localhost boot]# ls -lh /boot/
+总用量 120M
+-rw-r--r--. 1 root root 138K 7月   7 2017 config-3.10.0-693.el7.x86_64
+drwxr-xr-x. 3 root root   17 6月  30 11:02 efi
+drwx------. 5 root root   97 6月  30 11:24 grub2
+-rw-------. 1 root root  67M 6月  30 11:20 initramfs-0-rescue-8e3bd64141dc4275bf5456990c20d4c1.img
+-rw-------. 1 root root  30M 6月  30 11:24 initramfs-3.10.0-693.el7.x86_64.img
+-rw-r--r--. 1 root root 9.8M 6月  30 11:20 initrd-plymouth.img
+-rw-r--r--. 1 root root 287K 7月   7 2017 symvers-3.10.0-693.el7.x86_64.gz
+-rw-------. 1 root root 3.1M 7月   7 2017 System.map-3.10.0-693.el7.x86_64
+-rwxr-xr-x. 1 root root 5.7M 6月  30 11:20 vmlinuz-0-rescue-8e3bd64141dc4275bf5456990c20d4c1
+-rwxr-xr-x. 1 root root 5.7M 7月   7 2017 vmlinuz-3.10.0-693.el7.x86_64
+
+  4. 显示/root的全部内容，包括隐藏文档
+[root@localhost boot]# ls -A /root/
+anaconda-ks.cfg  .dbus                 stu01     文档
+.bash_logout     .esd_auth             .tcshrc   下载
+.bash_profile    .ICEauthority         .viminfo  音乐
+.bashrc          initial-setup-ks.cfg  公共      桌面
+.cache           .lesshst              模板
+.config          .local                视频
+.cshrc           nsd02             
+  5. 显示/bin/bash程序，详细属性
+[root@localhost boot]# ls -l /bin/bash
+-rwxr-xr-x. 1 root root 960472 3月   8 2017 /bin/bash
+
+  6. 显示/dev/cdrom光驱设备，详细属性
+[root@localhost boot]# ls -l /dev/cdrom
+lrwxrwxrwx. 1 root root 3 7月   2 10:37 /dev/cdrom -> sr0
+
+
+案例：mount挂载
+  1. 在根目录下创建目录结构/rhel7/dvd
+[root@localhost boot]# mkdir -p /rhel7/dvd
+[root@localhost boot]# ls /rhel7/
+dvd
+
+  2. 利用图形将光盘文件rhel-server-7.4-x86_64-dvd.iso放入光驱设备中
+1.点击虚拟机灯泡图标，下拉菜单 IDECDROM1 打开连接 浏览 本地浏览 双击rhel-server-7.4-x86_64-dvd.iso 点确定
+  3. 将光驱设备挂载到/rhel7/dvd目录，以/rhel7/dvd目录作为其访问点
+[root@localhost boot]# mount /dev/cdrom /rhel7/dvd
+mount: /dev/sr0 写保护，将以只读方式挂载
+
+  4. 查看/rhel7/dvd/Packages目录内容
+[root@localhost boot]# ls /rhel7/dvd/Packages/
+
+  5. 将/rhel7/dvd/Packages目录中以vsftpd开头的软件包，拷贝到/opt下
+[root@localhost boot]# cp /rhel7/dvd/Packages/vsftpd* /opt
+[root@localhost boot]# ls /opt/
+nsd  vsftpd-3.0.2-22.el7.x86_64.rpm
+
+
+案例：别名与vim的使用
+  1. 为虚拟机定义一个别名，执行byebye可以实现关闭系统
+[root@localhost boot]# alias byebye='poweroff'
+
+
+  2. 利用vim 修改文件/etc/hostname将其原有内容全部删除，写入新的内容为student.tmooc.cn
+[root@localhost boot]# vim  /etc/hostname
+[root@localhost boot]# cat /etc/hostname
+student.tmooc.cn
+
+
+ 
+
+
+
+
+

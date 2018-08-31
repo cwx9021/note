@@ -1,0 +1,43 @@
+
+   1.vim /root/.bashrc
+      alias c='rht-vmctl reset classroom'
+      alias s='rht-vmctl reset server'
+      alias d='rht-vmctl reset desktop'
+   
+
+   1.mkdir  /mnt/public
+   2.touch  /mnt/public/linux.txt
+           vim  /mnt/public/linux.txt
+                Study Linux
+   3.cp  /mnt/public/linux.txt   /root/study.txt
+   4.vim  /etc/hostname
+         www.qq.com
+   5.cp -r  /etc/passwd  /etc/resolv.conf   /etc/hostname     /mnt/public
+   6.mv  /mnt/public/hostname    /mnt/public/stu.txt
+   7.mkdir -p  /mnt/public/test/vm
+   8.cp -r  /home   /mnt/public/test
+
+   1.ls -lA  /
+   2.ls -lA  /etc/*tab
+   3.ls -lh  /etc/resolv.conf
+   4.ls -lh  /etc/sysconfig/network-scripts/ifcfg-eth0
+   5.cat -4  /etc/sysconfig/network-scripts/ifcfg-eth0
+
+   1.vim  /etc/yum.repos.d/*.repo
+         [*]
+       name=*
+       baseurl=http://classroom.example.com/content/rhel7.0/x86_64/dvd/
+       enabled=1
+       gpgcheck=0
+     yum repolist
+     yum -y  install  sssd
+     yum -y  install  xeyes
+
+   1.vim /etc/hostname
+       server0.example.com
+    
+      nmcli connection modify  'System eth0'  ipv4.method manual                    ipv4.addresses'172.25.0.100/24  172.25.0.254' connection.autoconnect   yes
+
+     vim  /etc/resolv.conf
+      nameserver   172.25.254.254
+

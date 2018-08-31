@@ -1,0 +1,132 @@
+案例1:为虚拟机 server 配置以下静态地址参数
+– 主机名:server0.example.com
+– IP地址:172.25.0.11
+– 子网掩码:255.255.255.0
+– 默认网关:172.25.0.254
+– DNS服务器:172.25.254.254
+
+[root@localhost ~]# hostnamectl set-hostname server0.example.com
+[root@localhost ~]# hostname
+server0.example.com
+[root@localhost ~]# nmcli connection modify 'System eth0' ipv4.method manual ipv4.addresses '172.25.0.11 172.25.0.254' ipv4.dns 172.25.254.254 connection.autoconnect yes
+[root@localhost ~]# ifconfig eth0
+eth0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        inet 172.25.0.11  netmask 255.255.255.0  broadcast 172.25.0.255
+[root@localhost ~]# route
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
+default         172.25.0.254    0.0.0.0         UG    1024   0        0 eth0
+[root@localhost ~]# nslookup server0.example.com
+Server:		172.25.254.254
+
+
+
+案例2：设置SELinux保护
+为虚拟机 server0、desktop0 配置SELinux 
+  1）确保 SELinux 处于强制启用模式（permissive） 
+[root@server0 ~]# setenforce 0
+[root@server0 ~]# getenforce 
+Permissive
+[root@desktop0 ~]# setenforce 0
+[root@desktop0 ~]# getenforce 
+Permissive
+
+  2）在每次重新开机后，此设置必须仍然有效
+[root@server0 ~]# vim /etc/selinux/config
+SELINUX=permissive
+[root@desktop0 ~]# vim /etc/selinux/config 
+SELINUX=permissive
+
+案例3：自定义用户环境
+为系统 server0  创建自定义命令 
+  1）自定义命令的名称为 qstat 
+  2）此自定义命令将执行以下操作： /bin/ps -Ao pid,tt,user,fname,rsz 
+  3）此自定义命令对系统中的所有用户都有
+[root@server0 ~]# vim /etc/bashrc
+alias qstat= '/bin/ps -Ao pid,tt,user,fname,rsz'
+[root@server0 ~]# qstat
+[root@server0 ~]# echo $?
+0
+
+案例4：Shell脚本
+为系统 server0 书写脚本/root/user.sh
+运行脚本，可以判断用户输入的用户是否存在
+如果存在，输出用户基本信息（id  用户名）
+如果用户，不存在则创建用户，并输出用户创建成功
+[root@server0 ~]# vim /root/user.sh
+	#!/bin/bash
+	read -p '请输入您要测试的用户:'   username
+	id $username &>/dev/null
+	if [ $? -eq 0 ];then
+        echo 用户$username已存在
+        id $username
+	else
+        useradd $username
+        echo $username创建成功
+	fi
+	请输入您要测试的用户:kingson
+	用户kingson已存在
+	uid=1001(kingson) gid=1001(kingson) 组=1001(kingson)
+	请输入您要测试的用户:rexlee
+	rexlee创建成功
+	[root@server0 ~]# id rexlee
+	uid=1002(rexlee) gid=1002(rexlee) 组=1002(rexlee)
+
+
+案例5：实现本机server0 的Web服务
+  1）利用httpd软件搭建Web服务，页面显示内容为 小蝌蚪找妈妈 
+	[root@server0 ~]# yum -y install httpd
+	[root@server0 ~]# systemctl restart httpd
+	[root@server0 ~]# systemctl enable httpd
+	[root@server0 ~]# vim /var/www/html/index.html
+	<marquee><font color='orange'><h1>小蝌蚪找妈妈
+	[root@server0 ~]#firefox 172.25.0.11
+
+
+案例6：实现本机server0 的防火墙配置
+  1）修改虚拟机 server0防火墙配置，明确拒绝所有客户端访问
+	[root@server0 ~]# firewall-cmd --set-default-zone=block 
+	success
+  2）在虚拟机 desktop0上测试能否访问server0 的Web服务
+	[root@desktop0 ~]# firefox 172.25.0.11   #实验证明不能访问
+  3）在虚拟机 desktop0上测试能否 ping通 虚拟机 server0
+	[root@desktop0 ~]# ping 172.25.0.11
+	PING 172.25.0.11 (172.25.0.11) 56(84) bytes of data.
+	From 172.25.0.11 icmp_seq=1 Destination Host Prohibited
+	From 172.25.0.11 icmp_seq=2 Destination Host Prohibited
+	From 172.25.0.11 icmp_seq=3 Destination Host Prohibited
+	From 172.25.0.11 icmp_seq=4 Destination Host Prohibited
+
+
+案例7：实现本机server0 的防火墙配置
+  1）修改虚拟机 server0防火墙配置，将默认区域修改为public
+	[root@server0 ~]# firewall-cmd --set-default-zone=public 
+success
+	[root@server0 ~]# firewall-cmd --get-default-zone 
+public
+  2）在虚拟机 desktop0上测试能否访问server0 的Web服务
+	[root@desktop0 ~]# firefox 172.25.0.11  #实验证明不能访问
+  3）在虚拟机 desktop0上测试能否 ping通 虚拟机 server0
+	[root@desktop0 ~]# ping 172.25.0.11
+	PING 172.25.0.11 (172.25.0.11) 56(84) bytes of data.
+	64 bytes from 172.25.0.11: icmp_seq=1 ttl=64 time=0.178 ms
+	64 bytes from 172.25.0.11: icmp_seq=2 ttl=64 time=0.328 ms
+	64 bytes from 172.25.0.11: icmp_seq=3 ttl=64 time=0.551 ms
+	64 bytes from 172.25.0.11: icmp_seq=4 ttl=64 time=0.441 ms
+
+案例8：实现本机server0 的防火墙配置
+  1）修改虚拟机 server0防火墙配置，将默认区域修改为public
+	[root@server0 ~]# firewall-cmd --set-default-zone=public 
+success
+  2）修改虚拟机 server0防火墙配置，在public区域中添加http服务
+	[root@server0 ~]# firewall-cmd --permanent --zone=public --add-service=http
+success
+	[root@server0 ~]# firewall-cmd --zone=public --list-all 
+	[root@server0 ~]# firewall-cmd --reload 
+success
+	services: dhcpv6-client http ssh
+  3）在虚拟机 desktop0上测试能否访问server0 的Web服务
+	[root@desktop0 ~]# firefox 172.25.0.11  #实验证明可以访问～
+
+
+

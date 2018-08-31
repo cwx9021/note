@@ -1,0 +1,74 @@
+例1.
+	mkdir /var/www/server0
+	echo '<h1>复仇者联盟4' > /var/www/server0/index.html
+	mkdir /var/www/www0
+	echo '<h1>琅琊榜30' > /var/www/www0/index.html
+	mkdir /var/www/webapp0
+	echo '<h1>38春风不如你' > /var/www/webapp0/index.html
+	vim /etc/httpd/conf.d/nsd01.conf
+	<virtualhost *:80>
+        servername server0.example.com
+        documentroot /var/www/server0
+	</virtualhost>
+
+	<virtualhost *:80>
+        servername www0.example.com
+        documentroot /var/www/www0
+	</virtualhost>
+
+	<virtualhost *:80>
+        servername webapp0.example.com
+        documentroot /var/www/webapp0
+	</virtualhost>
+	systemctl restart httpd
+例2.
+	mkdir /var/www/server0/private
+	echo '<h1>不许偷看Y' > /var/www/server0/private/index.html
+	vim /etc/httpd/conf.d/nsd02.conf
+	<directory  /var/www/server0/private>
+        require ip 172.25.0.11
+	</directory>
+	systemctl restart httpd
+例3.
+	mkdir /webroot
+	echo '<h1>网页目录新站点' > /webroot/index.html
+	cat /webroot/index.html
+	vim /etc/httpd/conf.d/nsd01.conf
+	<VirtualHost *:80>
+  	  ServerName server0.example.com
+  	  DocumentRoot /webroot
+ 	</VirtualHost>
+	vim /etc/httpd/conf.d/nsd02.conf
+	<Directory /webroot>
+         Require all granted    
+      </Directory>
+	chcon -R --reference=/var/www   /webroot
+	systemctl restart httpd
+例4.
+	mkdir /var/www/nsd
+	cd /var/www/nsd
+	wget http://classroom/pub/materials/webinfo.wsgi 
+	vim /etc/httpd/conf.d/nsd01.conf 
+
+	</virtualhost>
+	listen 8909
+	<virtualhost *:8909>
+        servername webapp0.example.com
+        documentroot /var/www/webapp0
+        wsgiscriptalias  /  /var/www/webapp0/webinfo.wsgi
+	</virtualhost>
+	semanage port -a -t http_port_t -p tcp 8909
+	systemctl restart httpd
+
+
+
+
+
+
+
+
+
+
+
+
+

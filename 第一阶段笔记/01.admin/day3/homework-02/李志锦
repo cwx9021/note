@@ -1,0 +1,33 @@
+1.mkdir  /opt/nsd
+2.vim    /opt/nsd/readme.txt   
+     i
+     I Loce Linux
+     :wq
+3.cp -r  /etc/passwd   /etc/resoly.conf    /opt/nsd
+4.cp -r  /etc/redhat-release   /root/
+  cp -r  /etc/redhat-release   /root/etc/version.txt
+5.   mv  /root/version.txt   /opt/nsd/
+6.cp -r  /home   /opt/nsd/
+
+
+1.ls  /
+2.ls -ld  /
+3.cd  /boot
+  ls -lh  /boot
+4.ls -lAh /boot
+5.ls -lh  /bin/bash
+6.ls -lh  /dev/cdrom
+
+
+1.mkdir  /rhel7/dvd
+2.
+3.mount  /dev/cdrom   /rhel7/dvd
+4.ls  /rhel7/dvd/Packages
+5.cp -r  /rhel7/dvd/Packages/vsftpd*    /opt
+
+1.alias  powoff='byebye'
+2.vim  /etc/hostname
+   按dd删除后按i进入编辑模式 
+   student.tmooc.cn
+按Esc键 输入：wq
+   

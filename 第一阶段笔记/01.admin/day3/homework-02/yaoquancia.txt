@@ -1,0 +1,212 @@
+[root@room11pc30 ~]# mkdir /opt/nsd
+[root@room11pc30 ~]# ls /opt
+1.txt  2.txt  nsd
+[root@room11pc30 ~]# wpd
+bash: wpd: 未找到命令...
+相似命令是： 'pwd'
+[root@room11pc30 ~]# pwd
+/root
+[root@room11pc30 ~]# cd /opt
+[root@room11pc30 opt]# pwd
+/opt
+[root@room11pc30 opt]# ls
+1.txt  2.txt  nsd
+[root@room11pc30 opt]# touch /opt/nsd/readme.tex
+[root@room11pc30 opt]# ls
+1.txt  2.txt  nsd
+[root@room11pc30 opt]# cd /nsd
+bash: cd: /nsd: 没有那个文件或目录
+[root@room11pc30 opt]# cd /nsd
+bash: cd: /nsd: 没有那个文件或目录
+[root@room11pc30 opt]# ls
+1.txt  2.txt  nsd
+[root@room11pc30 opt]# cd /nsd
+bash: cd: /nsd: 没有那个文件或目录
+[root@room11pc30 opt]# cd /opt/nsd
+[root@room11pc30 nsd]# ls
+readme.tex
+[root@room11pc30 nsd]# pwd
+/opt/nsd
+[root@room11pc30 nsd]# pc /etc/passwd /etc/resolv.conf version
+bash: pc: 未找到命令...
+相似命令是：:
+'cp'
+'ps'
+[root@room11pc30 nsd]# cp /etc/passwd /etc/resolv.conf version
+cp: 目标"version" 不是目录
+[root@room11pc30 nsd]# cp /etc/passwd /etc/resolv.conf /opt/nsd
+[root@room11pc30 nsd]# ls
+passwd  readme.tex  resolv.conf
+[root@room11pc30 nsd]# pwd
+/opt/nsd
+[root@room11pc30 nsd]# cd
+[root@room11pc30 ~]# cd nsd
+bash: cd: nsd: 没有那个文件或目录
+[root@room11pc30 ~]# cd /opt/nsd
+[root@room11pc30 nsd]# ls
+passwd  readme.tex  resolv.conf
+[root@room11pc30 nsd]# cat readme.tex
+[root@room11pc30 nsd]# ls
+passwd  readme.tex  resolv.conf
+[root@room11pc30 nsd]# 
+[root@room11pc30 nsd]# 
+[root@room11pc30 nsd]# 
+[root@room11pc30 nsd]# 4
+bash: 4: 未找到命令...
+[root@room11pc30 nsd]# 
+[root@room11pc30 nsd]# 
+[root@room11pc30 nsd]# cp /etc/redhat-release /root version.txt
+cp: 目标"version.txt" 不是目录
+[root@room11pc30 nsd]# cp /etc/redhat-release /root/version.txt
+[root@room11pc30 nsd]# pwd
+/opt/nsd
+[root@room11pc30 nsd]# cd /root
+[root@room11pc30 ~]# ls
+aa  anaconda-ks.cfg  bin  initial-setup-ks.cfg  original-ks.cfg  version.txt  公共  模板  视频  图片  文档  下载  音乐  桌面
+[root@room11pc30 ~]# pwd
+/root
+[root@room11pc30 ~]# cat version.txt
+CentOS Linux release 7.4.1708 (Core) 
+[root@room11pc30 ~]# 
+[root@room11pc30 ~]# 
+[root@room11pc30 ~]# 
+[root@room11pc30 ~]# 
+[root@room11pc30 ~]# 
+[root@room11pc30 ~]# 5
+bash: 5: 未找到命令...
+[root@room11pc30 ~]# 
+[root@room11pc30 ~]# 
+[root@room11pc30 ~]# mv /root/version.txt /opt/nsd
+[root@room11pc30 ~]# cd /opt/nsd
+[root@room11pc30 nsd]# ls
+passwd  readme.tex  resolv.conf  version.txt
+[root@room11pc30 nsd]# cat version.txt
+CentOS Linux release 7.4.1708 (Core) 
+[root@room11pc30 nsd]# cd /root/version.txt
+bash: cd: /root/version.txt: 没有那个文件或目录
+[root@room11pc30 nsd]# cd /root
+[root@room11pc30 ~]# pwd
+/root
+[root@room11pc30 ~]# ls
+aa  anaconda-ks.cfg  bin  initial-setup-ks.cfg  original-ks.cfg  公共  模板  视频  图片  文档  下载  音乐  桌面
+[root@room11pc30 ~]# cat version.txt
+cat: version.txt: 没有那个文件或目录
+[root@room11pc30 ~]# 
+[root@room11pc30 ~]# 
+[root@room11pc30 ~]# an li 2
+bash: an: 未找到命令...
+[root@room11pc30 ~]# 1
+bash: 1: 未找到命令...
+[root@room11pc30 ~]# 
+[root@room11pc30 ~]# cd /
+[root@room11pc30 /]# ls
+bin   content  etc   iso  lib64       media  opt   public  run   srv  tmp  var
+boot  dev      home  lib  lost+found  mnt    proc  root    sbin  sys  usr  vod
+[root@room11pc30 /]# 
+[root@room11pc30 /]# 
+[root@room11pc30 /]# 2
+bash: 2: 未找到命令...
+[root@room11pc30 /]# pwd
+/
+[root@room11pc30 /]# ls -d
+.
+[root@room11pc30 /]# ls -ld /
+dr-xr-xr-x. 21 root root 4096 7月   2 15:46 /
+[root@room11pc30 /]# cd /boot
+[root@room11pc30 boot]# ls -ld boot
+ls: 无法访问boot: 没有那个文件或目录
+[root@room11pc30 boot]# cd /boot
+[root@room11pc30 boot]# ls
+config-3.10.0-693.el7.x86_64                             initramfs-3.10.0-693.el7.x86_64kdump.img
+efi                                                      initrd-plymouth.img
+extlinux                                                 symvers-3.10.0-693.el7.x86_64.gz
+grub                                                     System.map-3.10.0-693.el7.x86_64
+grub2                                                    vmlinuz-0-rescue-b271e65a737143e58c76eb618345c104
+initramfs-0-rescue-b271e65a737143e58c76eb618345c104.img  vmlinuz-3.10.0-693.el7.x86_64
+initramfs-3.10.0-693.el7.x86_64.img
+[root@room11pc30 boot]# ls -lh
+总用量 133M
+-rw-r--r--. 1 root root 138K 8月  23 2017 config-3.10.0-693.el7.x86_64
+drwxr-xr-x. 3 root root 4.0K 3月  19 23:49 efi
+drwxr-xr-x. 2 root root 4.0K 3月  19 23:52 extlinux
+drwxr-xr-x. 2 root root 4.0K 3月  19 23:51 grub
+drwx------. 5 root root 4.0K 3月  20 00:07 grub2
+-rw-------. 1 root root  67M 3月  20 00:02 initramfs-0-rescue-b271e65a737143e58c76eb618345c104.img
+-rw-------. 1 root root  28M 3月  20 00:07 initramfs-3.10.0-693.el7.x86_64.img
+-rw-------  1 root root  15M 6月  28 18:26 initramfs-3.10.0-693.el7.x86_64kdump.img
+-rw-r--r--. 1 root root 9.8M 3月  20 00:00 initrd-plymouth.img
+-rw-r--r--. 1 root root 287K 8月  23 2017 symvers-3.10.0-693.el7.x86_64.gz
+-rw-------. 1 root root 3.1M 8月  23 2017 System.map-3.10.0-693.el7.x86_64
+-rwxr-xr-x. 1 root root 5.7M 3月  20 00:02 vmlinuz-0-rescue-b271e65a737143e58c76eb618345c104
+-rwxr-xr-x. 1 root root 5.7M 8月  23 2017 vmlinuz-3.10.0-693.el7.x86_64
+[root@room11pc30 boot]# 
+[root@room11pc30 boot]# 4
+bash: 4: 未找到命令...
+[root@room11pc30 boot]# ls
+config-3.10.0-693.el7.x86_64                             initramfs-3.10.0-693.el7.x86_64kdump.img
+efi                                                      initrd-plymouth.img
+extlinux                                                 symvers-3.10.0-693.el7.x86_64.gz
+grub                                                     System.map-3.10.0-693.el7.x86_64
+grub2                                                    vmlinuz-0-rescue-b271e65a737143e58c76eb618345c104
+initramfs-0-rescue-b271e65a737143e58c76eb618345c104.img  vmlinuz-3.10.0-693.el7.x86_64
+initramfs-3.10.0-693.el7.x86_64.img
+[root@room11pc30 boot]# ls -A
+config-3.10.0-693.el7.x86_64                             initramfs-3.10.0-693.el7.x86_64kdump.img
+efi                                                      initrd-plymouth.img
+extlinux                                                 symvers-3.10.0-693.el7.x86_64.gz
+grub                                                     System.map-3.10.0-693.el7.x86_64
+grub2                                                    vmlinuz-0-rescue-b271e65a737143e58c76eb618345c104
+initramfs-0-rescue-b271e65a737143e58c76eb618345c104.img  vmlinuz-3.10.0-693.el7.x86_64
+initramfs-3.10.0-693.el7.x86_64.img                      .vmlinuz-3.10.0-693.el7.x86_64.hmac
+[root@room11pc30 boot]# ls -A /root
+aa               .bashrc         .cshrc        .gnome2_private       .mozilla         .ssh       .win2008.xml  文档
+anaconda-ks.cfg  bin             .dbus         .ICEauthority         original-ks.cfg  .stardict  公共          下载
+.bash_history    .cache          .desktop.xml  initial-setup-ks.cfg  .pki             .tcshrc    模板          音乐
+.bash_logout     .classroom.xml  .esd_auth     .java                 .PyCharm2017.3   .viminfo   视频          桌面
+.bash_profile    .config         .gnome2       .local                .server.xml      .win       图片
+[root@room11pc30 boot]# ls -l /bin/bash
+-rwxr-xr-x. 1 root root 960472 8月   3 2017 /bin/bash
+[root@room11pc30 boot]# 
+[root@room11pc30 boot]# 5
+bash: 5: 未找到命令...
+[root@room11pc30 boot]# 6
+bash: 6: 未找到命令...
+[root@room11pc30 boot]# ls -A /dev/cdrom
+ls: 无法访问/dev/cdrom: 没有那个文件或目录
+[root@room11pc30 boot]# ls -l /dev/cdrom
+ls: 无法访问/dev/cdrom: 没有那个文件或目录
+[root@room11pc30 boot]# ls -l /dev/cdrom 
+ls: 无法访问/dev/cdrom: 没有那个文件或目录
+[root@room11pc30 boot]# 
+[root@room11pc30 boot]# 
+[root@room11pc30 boot]# 
+[root@room11pc30 boot]# mkdir -p /rhel7/dvd
+[root@room11pc30 boot]# 3
+bash: 3: 未找到命令...
+[root@room11pc30 boot]# mount /dev/cdrom /rhel7/dvd
+mount: 特殊设备 /dev/cdrom 不存在
+[root@room11pc30 boot]# 
+[root@room11pc30 boot]# 
+[root@room11pc30 boot]# 5
+bash: 5: 未找到命令...
+[root@room11pc30 boot]# 
+[root@room11pc30 boot]# 4
+bash: 4: 未找到命令...
+[root@room11pc30 boot]# cd /rhel7/dvd/Packages
+bash: cd: /rhel7/dvd/Packages: 没有那个文件或目录
+[root@room11pc30 boot]# ls /rhel7/dvd/Packages
+ls: 无法访问/rhel7/dvd/Packages: 没有那个文件或目录
+[root@room11pc30 boot]# 
+[root@room11pc30 boot]# 5
+bash: 5: 未找到命令...
+[root@room11pc30 boot]# cp /rhel7/dvd/Packages/vsftpd* /opt
+cp: 无法获取"/rhel7/dvd/Packages/vsftpd*" 的文件状态(stat): 没有那个文件或目录
+[root@room11pc30 boot]# 
+[root@room11pc30 boot]# an lisan
+bash: an: 未找到命令...
+[root@room11pc30 boot]# 
+[root@room11pc30 boot]# alias byebye='poweroff'
+[root@room11pc30 boot]# vim /etc/hostname
+[root@room11pc30 boot]# vim /etc/hostname
+[root@room11pc30 boot]# 
+

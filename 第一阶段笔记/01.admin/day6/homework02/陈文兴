@@ -1,0 +1,41 @@
+案例一
+1，vim  /etc/yum.repos.d/*.repo
+   [*]
+name=*
+baseurl=http://classroom.example.com/content/rhel7.0/x86_64/dvd/
+enabled=0
+gpgcheck=1
+ yum repolist
+yum -y install xeyeschom
+
+案例二
+1，mkdir /nsddir 
+   touch  /nsddir/readme.txt
+2,:chmod o=rwx /nsddir
+3,chmod o=rw /naddir/readme.txt
+
+案例三
+1，mkdir /tarenal
+ a, chown gelin01:tarena /tarena1
+ b,setfacl -m u:gelin01:rwx /tarena1
+2,chown gelin02:tarena /tarena1
+3,mkdir /tarena2
+ a,chown :tarena /tarena2
+ b,chmod  g=rwx /tareda2
+4,mkdir /tarena/public
+ chmod u=rwx,g=rwx,o=rwx /tarena/public
+ setfacl -m u:zhangsan:--- /tarena/public
+案例四
+1，mkdir /date/test
+ chmod u=rw,g=rw,o=--- /data/test
+2,chmod zhangsan:tarena /data/test
+3,chmod g+s /data/test /tarena 
+4,setfacl -m u:lisi:rx /data/test  
+案例五
+1，yum -y install sssd
+ yum -y install authconfig-gtk
+  authconfig-gtk
+   dc=example,dc=com
+   classroom.example.com
+  http://classroom.example.com/pub/example-ca.crt
+     id ldapuser0

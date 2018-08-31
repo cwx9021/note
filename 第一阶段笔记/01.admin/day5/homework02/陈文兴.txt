@@ -1,0 +1,70 @@
+1,vim /etc/hostname
+  i  server0.example.com
+2,nmcli connection modify'system etho' ipv4.method manual ipv4.addresses 
+   '175.25.0.120/24  172.25.0.254'connection autoconnect yes
+3,vim  /etc/resolv.conf 
+   i  172.25.254.254
+
+
+案例二
+1，vim  etc/yum.repos.d/* .repo
+  [rhel7]
+ name=rhel7.0
+ baseurl=http://classroom.example.com/content/rhel7.0/x86_64/dvd/
+ enabled=1
+ gpgcheck=0
+2,yum -y install system-config-kickstart 
+
+案例三
+ 1，grep /etc/passwd  /root  > root/opt/root.txt
+ 2,grep /etc/passwd  /nologin >> /opt/root.txt
+
+
+案例四
+，mkdir /root/boothome /root/usrsbin
+1,tar  -zcf /boothome.tar.gz /boot /home
+2,tar -tf /boothome.tar.gz
+3,tar  -xf /boothome.tar.gz /root/boothome
+4,tar -jcf /usrsbin.tar.bz2 /usr/sbin
+5,tar -tf /usrsbin.tar.bz2
+6,tar -xf /usrsbin.tar.bz2 /root/usrsbin
+
+
+案例五
+1，useradd stu01
+2,tail  -1 /etc/passwd  /etc/shadow
+3,group  home
+4,echo 123456 | passwd --stdin stu01
+
+案例六
+1，useradd -d  /opt/nsd01 nsd01
+2,useradd -u 1234  sys01*****
+3passwd sys01 , su -sys01
+4,useradd admin ,gpasswd -a admin users ****
+
+案例七
+1，passwd  nsd01 ,123456
+2,echo 654321 | passwd --stdin  nsd01
+
+案例八
+1， usermod nsd03 ,usermod -G /opt/home03 nsd03
+2***
+3*****
+4******
+
+案例九
+1，groupadd stugrp
+2,gpasswd -a  user01,root,zhanggsan  stugrp
+3,groupdel user01
+
+案例十
+yum -y install chrony
+vim /etc/chrony.conf
+ #server 0.rhel.pool.ntp.org iburst     
+ #server 1.rhel.pool.ntp.org iburst    
+ #server 2.rhel.pool.ntp.org iburst    
+ server classroom.example.com iburst
+
+systemctl restart chronyd
+
+systemctl enable chronyd 

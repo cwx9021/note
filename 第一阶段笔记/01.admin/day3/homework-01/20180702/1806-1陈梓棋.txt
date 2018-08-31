@@ -1,0 +1,127 @@
+
+案例：复制、删除、移动
+  1. 在目录/opt下创建一个子目录 nsd 
+  mkdir /opt/nsd
+
+  2. 在目录/opt/nsd/创建文件readme.txt,利用vim写入内容 I Love Linux
+    touch /opt/nsd/readme.txt   vim /opt/nsd/readme.txt
+     [root@localhost ~]# cat /opt/nsd/readme.txt
+      I Love Liux
+
+     
+
+  3. 将/etc/passwd 和 /etc/resolv.conf同时拷贝到/opt/nsd目录下
+
+[root@localhost ~]# cp /etc/passwd  /opt/nsd
+[root@localhost ~]# ls /opt
+admin  nsd  red.txt
+[root@localhost ~]# cp  /etc/resolv.conf /opt/nsd
+[root@localhost ~]# ls /opt
+admin  nsd  red.txt
+[root@localhost ~]# 
+
+
+
+
+
+  4. 将文件 /etc/redhat-release复制到 /root/ 下，同时 改名为 version.txt 
+
+[root@localhost ~]# cp  /etc/redhat-release    /root/version.txt
+[root@localhost ~]# ls  /root
+anaconda-ks.cfg       nsd02  version.txt  模板  图片  下载  桌面
+initial-setup-ks.cfg  stu01  公共         视频  文档  音乐
+
+
+
+
+  5. 将文件 /root/version.txt 移动到/opt/nsd/目录下 
+
+[root@localhost ~]# mv /root/version.txt  /opt/nsd
+[root@localhost ~]# ls opt
+[root@localhost ~]# ls /opt
+admin  nsd  red.txt
+
+
+  6. 将/home目录复制到/opt/nsd/目录下 
+
+ 
+[root@localhost ~]# cp -r /home /opt/nsd
+[root@localhost ~]# ls opt
+[root@localhost ~]# ls /opt
+admin  nsd  red.txt
+
+案例：ls命令练习
+  1. 查看根目录下内容
+  ls /
+  2. 显示根目录本身详细属性
+   ls -l /
+   
+  3. 切换到/boot目录，显示当前目录内容的详细属性，并加上易读的容量单位  cd /boot
+[root@localhost ~]# cd /boot
+[root@localhost boot]# ls -l /boot
+
+  4. 显示/root的全部内容，包括隐藏文档
+   [root@room6pc22 ~]# ls -A /root
+anaconda-ks.cfg  .config               .local           .tcshrc       文档
+.bash_history    .cshrc                .mozilla         .viminfo      下载
+.bash_logout     .dbus                 NSD1806          .win          音乐
+.bash_profile    .desktop.xml          original-ks.cfg  .win2008.xml  桌面
+.bashrc          .esd_auth             .pki             公共
+bin              .ICEauthority         .PyCharm2017.3   模板
+.cache           initial-setup-ks.cfg  .server.xml      视频
+.classroom.xml   .java                 .ssh             图片
+
+
+
+  5. 显示/bin/bash程序，详细属性
+[root@room6pc22 ~]# ls -lh /bin/bash
+lrwxrwxrwx. 1 root root 7 3月  19 23:49 /bin -> usr/bin
+
+  6. 显示/dev/cdrom光驱设备，详细属性
+[root@localhost ~]# ls -d /dev/cdrom
+/dev/cdrom
+
+
+案例：mount挂载
+  1. 在根目录下创建目录结构/rhel7/dvd
+[root@localhost ~]# mkdir -p /rhel7/dvd
+[root@localhost ~]# ls /
+bin   dev  etc   lib    media  opt   rhel7  run   srv  tmp  var
+boot  dvd  home  lib64  mnt    proc  root  sbin  sys  usr  vod
+[root@localhost ~]# 
+
+
+  2. 利用图形将光盘文件rhel-server-7.4-x86_64-dvd.iso放入光驱设备中
+  3. 将光驱设备挂载到/rhel7/dvd目录，以/rhel7/dvd目录作为其访问点
+[root@localhost ~]# mount /dev/cdrom /rhel7/dvd
+mount: /dev/sr0 写保护，将以只读方式挂载
+
+
+  4. 查看/rhel7/dvd/Packages目录内容
+[root@localhost ~]# ls /rhel7/dvd/Packages
+
+
+  5. 将/rhel7/dvd/Packages目录中以vsftpd开头的软件包，拷贝到/opt下
+       [root@localhost ~]# cp /rhel7/dvd/Packages/vsftpd*  /opt
+[root@localhost ~]# ls opt
+[root@localhost ~]# ls /opt
+admin  nsd  red.txt  vsftpd-3.0.2-22.el7.x86_64.rpm
+
+
+案例：别名与vim的使用
+  1. 为虚拟机定义一个别名，执行byebye可以实现关闭系统
+   
+[root@localhost ~]# alias byebye 'poweroff'
+  2. 利用vim 修改文件/etc/hostname将其原有内容全部删除，写入新的内容为student.tmooc.cn
+
+[root@localhost ~]# vim /etc/hostname
+[root@localhost ~]# cat /etc/hostname
+student.tmooc.cn 
+
+
+ 
+
+
+
+
+

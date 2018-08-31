@@ -1,0 +1,131 @@
+案例练习,准备:
+            rht-vmctl  reset  classroom
+            rht-vmctl  reset  server
+	       rht-vmctl  reset  desktop
+######################################################
+
+
+案例1：真机上操作：别名与vim的使用
+  1. 定义一个永久别名（修改/root/.bashrc文件），执行c可以实现还原虚拟机classroom
+     vim /root/.bashrc  打开配置文件 
+     alias c='rht-vmctl reset classroom' 在空白处输入，然后推出并保存
+
+  2. 定义一个永久别名（修改/root/.bashrc文件），执行s可以实现还原虚拟机server
+     vim /root/.bashrc  打开配置文件
+     alias s='rht-vmctl reset server' 在空白处输入，然后推出并保存
+
+  2. 定义一个永久别名（修改/root/.bashrc文件），执行d可以实现还原虚拟机Desktop
+     vim /root/.bashrc  打开配置文件
+     alias d='rht-vmctl reset Desktop' 在空白处输入，然后推出并保存
+
+
+案例2：虚拟机Server上操作：复制、删除、移动及vim文本编辑器
+  1. 在目录/mnt下创建一个子目录public 
+     mkdir /mnt/public
+
+  2. 在目录/mnt/public 创建文件linux.txt,利用vim写入内容 Study Linux
+     touch /mnt/public/linux.txt  创建文件
+     vim /mnt/public/linux.txt 输入Study Linux,然后保存退出
+
+  3. 将/mnt/public/linux.txt文件复制到/root目录下，同时 改名为 study.txt
+     cp /mnt/public/linux.txt /mnt/public/study.txt
+
+  4. 利用vim 修改文件/etc/hostname将其原有内容全部删除，写入新的内容为www.qq.com
+      vim /etc/hostname  打开文件
+        删除全部内容，输入www.qq.com 保存并退出
+
+  5. 将/etc/passwd 、/etc/resolv.conf、/etc/hostname 同时拷贝到/mnt/public/目录下
+     cp /etc/passwd /etc/resolv.conf /etc/hostname /mnt/public
+
+  6. 将文件 /mnt/public/hostname 重改名为 stu.txt 
+     mv /mnt/public/hostname /mnt/piblic/stu.txt
+
+  7. 创建目录结构/mnt/public/test/vm
+     mkdir -p /mnt/public/test/vm
+
+  7. 将目录 /boot内容中以 vm 开头的 复制到/mnt/public/test/vm目录下 
+     cp -r /boot/vm* /mnt/public/test/vm
+
+  8. 将/home目录复制到/mnt/public/test/目录下 
+     cp -r /home /mnt/public/test
+     
+
+
+
+案例3：虚拟机Server上操作：ls与cat、head
+  1. 显示根目录下所有内容
+     ls /
+
+  2. 显示/etc目录下所有已tab结尾的文件
+      ls /etc/*tab
+
+  3. 显示/etc/resolv.conf文件的详细属性并加上易读的单位
+     ls -lh /etc/resolv.conf
+
+  4. 显示/etc/sysconfig/network-scripts/ifcfg-eth0文件的详细属性并加上易读的单位
+      ls -lh /etc/sysconfig/network-scripts/ficfg-eth0
+
+  5. 显示/etc/sysconfig/network-scripts/ifcfg-eth0文件的头4行内容
+     head -4 /etc/sysconfig/network-scripts/ifcfg-eth0
+ 
+
+
+
+案例4：虚拟机Server上操作：搭建Yum仓库
+
+为 server0 指定可用的 yum 软件源
+– YUM软件库的地址为 http://classroom.example.com/content/rhel7.0/x86_64/dvd/
+– 将此配置为虚拟机 server0 的默认软件仓库
+– 确认可用的仓库列表
+– 利用yum仓库安装sssd软件
+– 利用yum仓库安装xeyes软件
+
+第一步
+rm -rf /etc/yum.repos.d/*               删除目录下的所有文件
+第二步
+vim /etc/yum.repos.d/rhel7.repo         创建rhel7.repo
+第三步
+进入编辑模式输入如下内容
+[rhel7]
+name=yum rhel7
+baseurl=http://classroom.example.com/content/rhel7.0/x86_64/dvd/   
+enabled=1
+gpgcheck=0
+保存并退出
+第四步
+yum repolist            确认仓库列表
+第五步
+yum -y install sssd     安装sssd
+第六步
+yum -y install xeyes    安装xeyes
+
+
+案例5:为虚拟机 server 配置以下静态地址参数
+– 主机名:server0.example.com
+– IP地址:172.25.0.100
+– 子网掩码:255.255.255.0
+– 默认网关:172.25.0.254
+– DNS服务器:172.25.254.254
+
+第一步
+vim /etc/hostname,将主机名修改为server0.example.com，然后保存退出
+第二部
+查看网卡名称
+nmcli connection show
+第三步
+设置ip，子网掩码，网关
+nmcli connection modify '网卡名称' ipv4.method manurl ipv4.addresses '172.25.0.100/24 172.25.0.254'
+connection.autoconnect yes
+第四步
+让配置生效
+nmcli connction up
+第五步
+修改DNS
+vim /etc/resolv.conf         打开配置文件，删除全部内容
+nameserver 172.25.254.254    输入新内容，保存并退出
+第六步
+nslookup                     验证DNS是否工作正常
+
+
+
+

@@ -1,0 +1,85 @@
+案例1:为虚拟机 server 配置以下静态地址参数
+hostnamectl set-hostname server0.example.com
+nmcli connetion modify ens33 ipv4.addresses '172.25.0.120/24 172.25.0.254' ipv4.method manual
+vi /etc/resolv.conf  dd..   i   nameserver 172.25.254.254    esc    :wq
+
+案例2:指定yum软件源
+1.配置:vi /etc/yum.repos.d/ok.repo i
+[ok]
+name=ook
+enabled=1
+gpgcheck=0
+baseurl=http://classroom.example.com/content/rhel7.0/x86_64/dvd
+esc 
+:wq
+2.检验:yum repolist
+源标识                                       源名称                                    状态
+ok                                           ook                                       4,986
+repolist: 4,986
+3.安装:yum -y install system-config-kickstart 
+
+
+
+案例3:grep基本用法
+1.grep root /etc/passwd > /opt/root.txt
+2.grep nologin /etc/passwd >> /opt/root.txt
+
+
+案例4:tar制作/释放归档压缩包(zcf、ztf、zxf、jcf、jtf、jxf、cf、tf）
+mkdir /root/boothome /root/usrsbin/
+1)tar -czf  boothome.tar.gz  /boot /home 
+2)tar -tf boothome.tar.gz
+3)tar -xzf boothome.tar.gz -C /root/boothome/
+4)tar -cjf usrsbin.tar.bz2 /usr/sbin
+5)tar -tf usrsbin.tar.bz2l
+6)tar -xjf usrsbin.tar.bz2 -C /root/usrsbin/
+
+
+案例5：添加并测试用户账号
+1)useradd stu01
+2)tail -1 /etc/passwd 
+tail -1 /etc/shadow
+3).ls /home/stu01
+4).passswd stu01 或 echo 123456 |passwd stu01 --stdin
+
+
+案例6：添加账号时设置不同属性
+1)useradd nsd01 -d /opt/nsd01
+2)useradd sys01 -u 1234 -d /sbin/nologin
+3)echo 123456 |passwd sys01 --stdin 
+su - sys01
+su: 警告：无法更改到 /sbin/nologin 目录: 不是目录
+-bash: /sbin/nologin/.bash_profile: 不是目录
+4)useradd admin -g users -G adm,root
+
+案例7：passwd设置密码
+1[root@nice ~]# passwd nsd01 
+更改用户 nsd01 的密码 。
+新的 密码：
+无效的密码： 密码少于 8 个字符
+重新输入新的 密码：
+passwd：所有的身份验证令牌已经成功更新。
+2echo 654321 | passwd nsd01 --stdin
+
+案例8：usermod修改用户
+1)useradd nsd03 -d /opt/home03 -p 123456
+2)echo redhat | passwd nsd03 --stdin
+3)usermod nsd03 -d /home/nsd03
+4)usermod nsd03 -s /bin/bash
+
+
+案例9：组账号基本管理
+1)groupadd stugrp
+2)gpasswd -a user01 stugrp
+  gpasswd -a zhangsan stugrp
+  gpasswd -a root stugrp
+3)gpasswd -d user01 stugrp
+
+
+
+案例10：配置NTP网络时间客户端
+ vi /etc/chrony.conf
+server classroom.exanple.com iburst
+#server 1.rhel.pool.ntp.org iburst
+#server 2.rhel.pool.ntp.org iburst
+#server 3.rhel.pool.ntp.org iburst

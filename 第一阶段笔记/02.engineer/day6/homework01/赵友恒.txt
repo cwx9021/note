@@ -1,0 +1,104 @@
+案例练习,准备:
+            rht-vmctl  reset  classroom
+            rht-vmctl  reset  server
+	    rht-vmctl  reset  desktop
+######################################################
+
+案例1:为虚拟机 server 配置以下虚拟Web主机
+- 实现三个网站的部署
+- 实现客户端访问server0.example.com网页内容为  复仇者联盟4
+- 实现客户端访问www0.example.com网页内容为 琅琊榜30
+- 实现客户端访问webapp0.example.com网页内容为 38里春风不如你
+[root@server0 ~]# yum  -y  install httpd
+[root@server0 ~]# vim  /etc/httpd/conf/httpd.conf
+ServerName server.example.com:80
+[root@server0 ~]# mkdir /var/www/nsd01
+[root@server0 ~]# mkdir /var/www/nsd0
+[root@server0 ~]# echo '<h1>复仇者联盟4'  > /var/www/html/index.html
+[root@server0 ~]# echo '<h1>琅琊榜30' > /var/www/nsd0/index.html
+[root@server0 ~]# echo '<h1>38里春风不如你' > /var/www/nsd01/index.html
+[root@server0 ~]# vim  /etc/httpd/conf.d/nsd01
+[root@server0 ~]# cat  /etc/httpd/conf.d/nsd01 
+<Virtualhost  *:80>
+ServerName  www0.example.com
+DocumentRoot  /var/www/nsd0
+</VirtualHost>
+<VirtualHost  *:80>
+ServerName  webapp0.example.com
+DocumentRoot  /var/www/nsd01
+</VirtualHost>
+<VirtualHost>
+ServerName  server0.example.com
+DocumentRoot  /var/www/html
+</VirtualHost>
+[root@server0 ~]# systemctl restart httpd
+[root@server0 ~]# systemctl enable httpd
+
+[root@desktop0 ~]# firefox www0.example.com
+[root@desktop0 ~]# firefox webapp0.example.com
+[root@desktop0 ~]# firefox server0.example.com
+
+案例2:为虚拟机 server 配置Web访问控制
+在 Web 网站 http://server0.example.com 的 DocumentRoot 目录下创建一个名为 private 的子目录，要求如下：
+1）在server0.example.com的DocumentRoot目录下，private的子目录里书写网页文件index.html内容为  不许偷看丫
+2）此页面只能在本机浏览，但是从其他系统不能访问这个目录的内容
+[root@server0 ~]# mkdir  /var/www/html/private
+echo  '<h1>不许偷看丫'  >  /var/www/html/private/index.html
+vim  /etc/httpd/conf.d/nsd01.conf
+[root@server0 ~]# tail -4 /etc/httpd/conf.d/nsd01.conf
+<VirtualHost  *:80>
+ServerName  server0.example.com
+DocumentRoot /var/www/html/private
+</VirtualHost>
+vim  /etc/httpd/conf.d/nsd02.conf 
+[root@server0 ~]# tail -4 /etc/httpd/conf.d/nsd02.conf
+<Directory  /var/www/html/private>
+Require  ip  172.25.0.11
+</Directory>
+[root@server0 ~]# systemctl restart httpd
+[root@server0 ~]# systemctl enable httpd
+
+[root@server0 ~]# firefox server0.example.com/private
+[root@desktop0 ~]# firefox server0.example.com/private
+
+案例3:为虚拟机 server 使用自定Web根目录
+
+调整 Web 站点 http://server0.example.com 的网页目录，要求如下：
+1）新建目录 /webroot，作为此站点新的网页目录
+2）确保站点 http://server0.example.com  仍然可访问
+[root@server0 ~]#mkdir  /webroot
+[root@server0 ~]#echo  '<h1>1806'  >  /webroot/index.html
+[root@server0 ~]#vim  /etc/httpd/conf.d/nsd01.conf
+[root@server0 ~]# tail -4 /etc/httpd/conf.d/nsd01.conf
+<VirtualHost  *:80>
+ServerName  server0.example.com
+DocumentRoot /webroot
+</VirtualHost>
+[root@server0 ~]# tail  -3 /etc/httpd/conf.d/nsd02.conf
+<Directory  /webroot>
+Require  all granted
+</Directory>
+ [root@server0 ~]#chcon -R  --reference=/var/www/html  /webroot
+[root@server0 ~]#systemctl restart httpd
+[root@server0 ~]#firefox server0.example.com
+
+案例4：为虚拟机 server 部署动态WSGI站点
+为站点 webapp0.example.com 配置提供动态Web内容，要求如下：
+1）此虚拟主机侦听在端口8909
+2）测试网页从以下地址下载，不要作任何更改http://classroom/pub/materials/webinfo.wsgi 
+3）从浏览器访问 http://webapp0.example.com:8909 可接收到动态生成的 Web 页面
+[root@server0 ~]# vim  /etc/httpd/conf.d/nsd01.conf 
+Listen  8909
+<VirtualHost  *:8909>
+ServerName  webapp0.example.com
+DocumentRoot /var/www/nsd01
+WsgiScriPtAlias  /  /var/www/nsd01/webinfo.wsgi
+</VirtualHost>
+
+[root@server0 ~]# semanage port -l | grep http
+[root@server0 ~]# semanage port -a  -t  http_port_t  -p  tcp  8909
+[root@server0 ~]# systemctl restart httpd
+[root@server0 ~]# firefox server0.example.com:8909
+
+
+

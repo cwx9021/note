@@ -1,0 +1,125 @@
+案例1:为虚拟机 server 配置以下静态地址参数
+– 主机名:server0.example.com
+– IP地址:172.25.0.11
+– 子网掩码:255.255.255.0
+– 默认网关:172.25.0.254
+– DNS服务器:172.25.254.254
+echo server0.example.com > /etc/hostname
+	nmcli connection modify 'System eth0' ipv4.method manual ipv4.addresses '172.25.0.11/24 172.25.0.254' ipv4.dns '172.25.254.254' connection.autoconnect yes
+	第二行命令中已配置了dns服务器，如需单独配置，可输入：echo nameserver 172.25.254.254 > /etc/resolv.conf
+
+[root@server0 ~]# vim /etc/hostname
+按“i”进入输入模式 输入server0.example.com 按Esc 输入：wq 保存 退出
+[root@server0 ~]# cat /etc/hostname
+server0.example.com
+[root@server0 ~]# nmcli connection modify "System eth0" ipv4.method manual ipv4.addresses "172.25.0.120/24 172.25.0.254" ipv4.dns 172.25.254.254 connection.autoconnect yes
+[root@server0 ~]# nmcli connection up "System eth0" 
+
+案例2：设置SELinux保护
+为虚拟机 server0、desktop0 配置SELinux 
+  1）确保 SELinux 处于强制启用模式（permissive） 
+  2）在每次重新开机后，此设置必须仍然有效
+虚拟机Server
+[root@server0 /]# getenforce       #查看当前的状态
+Enforcing
+[root@server0 /]# setenforce 0     #当前修改为Permissive
+[root@server0 /]# getenforce 
+Permissive
+[root@server0 /]# vim /etc/selinux/config   #每次开机状态配置文件
+SELINUX=permissive
+
+虚拟机Desktop
+[root@desktop0 /]# getenforce 
+Enforcing
+[root@desktop0 /]# setenforce 0
+[root@desktop0 /]# getenforce 
+Permissive
+[root@desktop0 /]# vim /etc/selinux/config
+SELINUX=permissive
+
+案例3：自定义用户环境
+为系统 server0  创建自定义命令 
+#用户初始化文件
+# 影响指定用户的 bash 解释环境
+# ~/.bashrc,每次开启 bash 终端时生效
+# 影响所有用户的 bash 解释环境
+# /etc/bashrc,每次开启 bash 终端时生效
+  1）自定义命令的名称为 qstat 
+  2）此自定义命令将执行以下操作： /bin/ps -Ao pid,tt,user,fname,rsz 
+  3）此自定义命令对系统中的所有用户都有
+[root@desktop0 /]# vim /etc/bashrc
+按“i”进入输入模式 输入
+	alias qstat='/bin/ps -Ao pid,tt,user,fname,rsz'
+按Esc 进入末行模式 输入：wq 保存
+退出
+
+案例4：Shell脚本
+为系统 server0 书写脚本/root/user.sh
+运行脚本，可以判断 用户输入的用户名 是否存在
+如果存在，输出用户基本信息（id  用户名）
+如果用户，不存在则创建用户，并输出用户创建成功
+[root@server0 /]# vim /root/user.sh
+按“i”进入输入模式 输入
+#!/bin/bash
+read -p '请输入要创建的用户：' id
+useradd $id &> /dev/null
+if [ $? -eq 0 ];then
+        echo '用户'$id'创建成功'
+else    id $id
+fi
+
+按Esc 在末行模式下输入 ：wq！ 退出 保存
+[root@server0 /]# chmod +x /root/user.sh  #赋予所有人执行权限
+[root@server0 /]# /root/user.sh           #绝对路径运行
+案例5：实现本机server0 的Web服务
+  1）利用httpd软件搭建Web服务，页面显示内容为 小蝌蚪找妈妈 
+1.安装一个httpd软件    Apache(httpd)  
+[root@server0 ~]# yum  -y  install  httpd
+2.启动httpd服务/重起服务
+[root@server0 ~]# systemctl  restart httpd 
+[root@server0 /]# systemctl enable httpd
+3.书写一个页面文件
+[root@server0 /]# vim  /var/www/html/index.html
+按“i”进入输入模式 输入
+<h1>小蝌蚪找妈妈
+按Esc 进入末行模式 输入：wq 保存
+退出
+#（[root@server0 /]# echo '<h1>小蝌蚪找妈妈' > /var/www/html/index.html）
+[root@server0 ~]# firefox 172.25.0.11
+
+案例6：实现本机server0 的防火墙配置
+  1）修改虚拟机 server0防火墙配置，明确拒绝所有客户端访问
+[root@server0 ~]# firewall-cmd --set-default-zone=block  #修改默认区域
+
+  2）在虚拟机 desktop0上测试能否访问server0 的Web服务
+[root@desktop0 ~]# smbclient -L 172.25.0.11
+bash: smbclient: 未找到命令...
+
+ 3）在虚拟机 desktop0上测试能否 ping通 虚拟机 server0
+[root@desktop0 ~]# ping -c 2 172.25.0.11 #不可以通信，有回应
+
+案例7：实现本机server0 的防火墙配置
+  1）修改虚拟机 server0防火墙配置，将默认区域修改为public
+[root@server0 ~]# firewall-cmd --set-default-zone=public 
+
+  2）在虚拟机 desktop0上测试能否访问server0 的Web服务
+[root@desktop0 ~]# smbclient -L 172.25.0.11
+bash: smbclient: 未找到命令...
+
+  3）在虚拟机 desktop0上测试能否 ping通 虚拟机 server0
+[root@desktop0 ~]# ping -c 2 172.25.0.11 #不可以通信，有回应
+
+案例8：实现本机server0 的防火墙配置
+  1）修改虚拟机 server0防火墙配置，将默认区域修改为public
+  2）修改虚拟机 server0防火墙配置，在public区域中添加http服务
+  3）在虚拟机 desktop0上测试能否访问server0 的Web服务
+虚拟机server0：
+[root@desktop0 ~]# firewall-cmd --set-default-zone=public 
+[root@desktop0 ~]# firewall-cmd --zone=public --list-all
+[root@desktop0 ~]# firewall-cmd --zone=public --add-service=http
+[root@desktop0 ~]# firewall-cmd --zone=public --list-all
+虚拟机desktop0:
+[root@desktop0 ~]# firefox 172.25.0.11        #可以访问
+[root@desktop0 ~]# firefox ftp://172.25.0.11  #不可以访问
+
+

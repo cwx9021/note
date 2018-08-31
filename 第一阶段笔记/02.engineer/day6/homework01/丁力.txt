@@ -1,0 +1,97 @@
+案例练习,准备:
+            rht-vmctl  reset  classroom
+            rht-vmctl  reset  server
+	    rht-vmctl  reset  desktop
+######################################################
+
+案例1:为虚拟机 server 配置以下虚拟Web主机
+- 实现三个网站的部署
+- 实现客户端访问server0.example.com网页内容为  复仇者联盟4
+- 实现客户端访问www0.example.com网页内容为 琅琊榜30
+- 实现客户端访问webapp0.example.com网页内容为 38里春风不如你
+
+[root@server0 ~]# yum -y install httpd
+[root@server0 ~]# mkdir /var/www/yy
+[root@server0 ~]# mkdir /var/www/yy1
+[root@server0 ~]# mkdir /var/www/yy2
+[root@server0 ~]# echo 复仇者联盟4 > /var/www/yy/index.html
+[root@server0 ~]# echo 琅琊榜30 > /var/www/yy1/index.html
+[root@server0 ~]# echo 38里春风不如你 > /var/www/yy2/index.html
+root@server0 ~]# vim /etc/httpd/conf.d/yy.conf
+<virtualhost *:80>
+servername server0.example.com
+documentroot /var/www/yy
+</virtualhost>
+<virtualhost *:80>
+servername www0.example.com
+documentroot /var/www/yy1
+</virtualhost>
+<virtualhost *:80>
+servername webapp0.example.com
+documentroot /var/www/yy2
+</virtualhost>
+[root@server0 ~]# systemctl restart httpd
+
+
+
+
+案例2:为虚拟机 server 配置Web访问控制
+在 Web 网站 http://server0.example.com 的 DocumentRoot 目录下创建一个名为 private 的子目录，要求如下：
+1）在server0.example.com的DocumentRoot目录下，private的子目录里书写网页文件index.html内容为  不许偷看丫
+2）此页面只能在本机浏览，但是从其他系统不能访问这个目录的内容
+
+
+[root@server0 ~]# mkdir -p /var/www/yy/DocumentRoot/private
+[root@server0 ~]# echo 不许偷看丫 > /var/www/yy/DocumentRoot/private/index.html
+[root@server0 ~]# vim /etc/httpd/conf.d/yy2.conf
+<Directory /var/www/yy/DocumentRoot/private/>
+require ip 172.25.0.11
+</Directory>
+
+
+
+案例3:为虚拟机 server 使用自定Web根目录
+
+调整 Web 站点 http://server0.example.com 的网页目录，要求如下：
+1）新建目录 /webroot，作为此站点新的网页目录
+2）确保站点 http://server0.example.com  仍然可访问
+
+[root@server0 ~]# mkdir /webroot
+[root@server0 ~]# echo '<h1>1314' >/webroot/index.html
+[root@server0 ~]# vim /etc/httpd/conf.d/yy.conf 
+<virtualhost *:80>
+servername server0.example.com
+documentroot /webroot
+[root@server0 ~]# rm /etc/httpd/conf.d/yy2.conf 
+rm：是否删除普通文件 "/etc/httpd/conf.d/yy2.conf"？y
+[root@server0 ~]# chcon -R --reference=/var/www /webroot
+[root@server0 ~]# systemctl restart httpd
+
+
+案例4：为虚拟机 server 部署动态WSGI站点
+为站点 webapp0.example.com 配置提供动态Web内容，要求如下：
+1）此虚拟主机侦听在端口8909
+2）测试网页从以下地址下载，不要作任何更改http://classroom/pub/materials/webinfo.wsgi 
+3）从浏览器访问 http://webapp0.example.com:8909 可接收到动态生成的 Web 页面
+
+[root@server0 ~]# cd /var/www/
+[root@server0 yy2]# wget http://classroom/pub/materials/webinfo.wsgi
+[root@server0 yy2]# yum -y install mod_wsgi.x86_64 
+[root@server0 conf.d]# cd /etc/httpd/conf.d/
+[root@server0 conf.d]# vim yy.conf 
+Listen 8909
+<virtualhost *:8909>
+servername webapp0.example.com
+documentroot /var/www/yy2
+wsgiscriptalias / /var/www/yy2/webinfo.wsgi
+</virtualhost>
+[root@server0 conf.d]# semanage port -l |grep http
+[root@server0 conf.d]# semanage port -a -t http_port_t  -p tcp 8909
+[root@server0 conf.d]# systemctl restart httpd
+
+
+
+
+
+
+

@@ -1,0 +1,27 @@
+案例：复制、删除、移动
+1.mkdir /opt/nsd
+2.touch /opt/nsd/readme.txt,  vi(ESC+.),  i ,  I Love Linux , esc , :wq
+3.cp /etc/passwd /etc/resolv.conf /opt/nsd/
+4.cp /etc/redhat-release /root/version.txt
+5.mv /root/version.txt /opt/nsd/
+6.cp /home /opt/nsd/
+
+案例：ls命令练习
+1.ls /
+2.ls -ld /
+3.cd /boot , ls -hl
+4.ls -a /root
+5.ls -l /bin/bash
+6.ls -l /dev/cdrom
+
+
+案例：mount挂载
+1.mkdir -p /rhel7/dvd
+2.略
+3.mount /dev/sr0 /rhel7/dvd
+4.ls /rhel7/dvd/Packages
+5.cp /rhel7/dvd/Packages/vsftpd* /opt
+
+案例：别名与vim的使用
+1.alias byebye='poweroff'
+2.vim /etc/hostname, dd.......... , i , student.tmooc.cn , esc , :wq

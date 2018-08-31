@@ -1,0 +1,80 @@
+案例1:为虚拟机 server 配置以下虚拟Web主机
+firewall-cmd --set-default-zone=trusted
+yum -y install httpd
+systemctl start httpd
+systemctl enable httpd
+mkdir /var/www/fuchou /var/www/langya /var/www/chunfeng
+echo '复仇者联盟4' >/var/www/fuchou/index.html
+echo '琅琊榜30'> /var/www/langya/index.html
+echo '38里春风不如你'>/var/www/chunfeng/index.html
+vi /etc/httpd/conf.d/well.conf
+<VirtualHost *:80>
+ServerName server0.example.com
+DocumentRoot /var/www/fuchou
+</VirtualHost>
+<VirtualHost *:80>
+ServerName www0.example.com
+DocumentRoot /var/www/langya
+</VirtualHost>
+<VirtualHost *:80>
+ServerName webapp0.example.com
+DocumentRoot /var/www/chunfeng
+</VirtualHost>
+systemctl restart httpd
+
+
+案例2:为虚拟机 server 配置Web访问控制
+mkdir /var/www/fuchou/private
+echo '不许偷看丫'>/var/www/fuchou/private/index.html
+vi /etc/httpd/conf.d/ok.conf
+<Directory /var/www/fuchou/private>
+Require ip 172.25.0.11
+</Directory>
+systemctl restart httpd
+
+
+
+
+案例3:为虚拟机 server 使用自定Web根目录
+1)mkdir /webroot
+echo '复仇者联盟4'> /webroot/index.html
+chcon -R reference=/var/www /webroot
+vi /etc/httpd/conf.d/well.conf
+修改
+<VirtualHost *:80>
+ServerName server0.example.com
+DocumentRoot /webroot
+</VirtualHost>
+2)
+vi /etc/httpd/conf.d/ok.conf
+添加
+<Directory /webroot>
+AllowOverride none
+Reauire all granted
+</Directory>
+systemctl restart httpd
+
+
+
+案例4：为虚拟机 server 部署动态WSGI站点
+yum -y install mod_wsgi
+vi /etc/httpd/conf.d/well.conf
+修改
+Listen 8909
+<VirtualHost *:8909>
+ServerName webapp0.example.com
+DocumentRoot /var/www/chunfeng
+WsgiScriptAlias / /var/www/chunfeng/webinfo.wsgi
+</VirtualHost>
+semanage port -a -t http_port_t -p tcp 8909
+systemctl restart httpd
+
+
+
+
+
+
+
+
+
+

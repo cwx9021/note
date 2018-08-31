@@ -1,0 +1,99 @@
+案例1:为虚拟机 server 配置以下永久的静态地址参数
+hostnamectl set-hostname server0.example.com
+nmcli connection modify eth0 ipv4.addresses '172.25.0.11/24 172.25.0.254' ipv4.mothod manual 
+echo "namesever 172.25.254.254" >/etc/resolv.conf
+
+
+案例2：复制、粘贴、移动
+mkdir /example touch /example/nsd.txt
+1)echo "I love Study" >/example/nsd.txt
+2)mv /example/nsd.txt /example/mylove.txt
+3)cp /etc/passwd /boot /etc/group /example/
+4)ifconfig |head -2|cat > /example/mylove.txt
+5)cp /etc/hostname /example/
+6)cp /etc/resolv.conf /example/
+7)cp /etc/fstab /example/
+
+
+案例3:在server上操作,（MBR分区模式）规划分区
+vdc    253:32   0  80G  0 disk 
+├─vdc1 253:33   0  10G  0 part 
+├─vdc2 253:34   0  10G  0 part 
+├─vdc3 253:35   0  12G  0 part 
+├─vdc4 253:36   0   1K  0 part 
+└─vdc5 253:37   0  20G  0 part 
+
+
+案例4:在server上操作,分区使用
+1.mkfs.xfs /dev/vdc5
+  mkdir /mnt/xfs
+  echo "/dev/vdc5 /mnt/xfs xfs defaults 0 0" >>/etc/fstab 
+  mount -a 
+2.mkdir /mnt/mypart
+  mkfs.ext4 /dev/vdc1
+  echo "/dev/vdc1 /mnt/mypart ext4 defaults 0 0">>/etc/fstab
+  mount -a 
+
+
+
+案例5:虚拟机 server0操作，构建 LVM 存储
+vgcreate systemvg /dev/vdc[1-2]
+lvcreate -n vo -L 8G systemvg
+mkfs.xfs /dev/systemvg/vo
+mkdir /vo 
+mount /dev/systemvg/vo /vo 
+echo "I AM KING" >/vo/votest.txt
+echo "/dev/systemvg/vo /vo xfs defaults 0 0">>/etc/fstab
+mount -a
+
+案例6:虚拟机 server0操作，构建 LVM 存储(修改PE大小)
+vgcreate datastore -s 1M /dev/vdc3
+lvcreate -n database -l 50 datastore 
+mkfs.ext4 /dev/datastore/database 
+mkdir /mnt/database
+echo "/dev/datastore/database /mnt/database ext4 defaults 0 0">>/etc/fstab
+
+
+案例7:虚拟机 server0操作，扩展逻辑卷
+vgextend systemvg /dev/vdc6
+lvextend -n /dev/systemvg/vo -L +12G
+xfs_growfs /dev/systemvg/vo
+lvdisplay
+  --- Logical volume ---
+  LV Path                /dev/systemvg/vo
+  LV Name                vo
+  VG Name                systemvg
+  LV UUID                h0wRVi-bLTg-Su5B-Fc6Y-SD68-v5WM-hmLYl6
+  LV Write Access        read/write
+  LV Creation host, time server0.example.com, 2018-07-09 19:40:42 +0800
+  LV Status              available
+  # open                 1
+  LV Size                20.00 GiB
+  Current LE             5120
+  Segments               2
+  Allocation             inherit
+  Read ahead sectors     auto
+  - currently set to     8192
+  Block device           252:0
+
+
+
+案例8: vim文本编辑器练习，命令模式下的基本操作（重点知识）
+1)head -20 /etc/passwd|cat >/opt/pass20.txt
+2)head -20 /etc/shadow |cat >>/opt/pass20.txt
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

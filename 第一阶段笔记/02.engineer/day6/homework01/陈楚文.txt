@@ -1,0 +1,195 @@
+案例练习,准备:
+            rht-vmctl  reset  classroom
+            rht-vmctl  reset  server
+	    rht-vmctl  reset  desktop
+######################################################
+
+案例1:为虚拟机 server 配置以下虚拟Web主机
+- 实现三个网站的部署
+- 实现客户端访问server0.example.com网页内容为  复仇者联盟4
+- 实现客户端访问www0.example.com网页内容为 琅琊榜30
+- 实现客户端访问webapp0.example.com网页内容为 38里春风不如你
+[root@server0 ~]# yum -y install httpd
+[root@server0 ~]# systemctl restart httpd
+[root@server0 ~]# systemctl enable httpd
+ln -s '/usr/lib/systemd/system/httpd.service' '/etc/systemd/system/multi-user.target.wants/httpd.service'
+
+[root@server0 ~]# mkdir /var/www/test01 /varwww/test02  /var/www/test03
+[root@server0 ~]# vim /etc/httpd/conf.d/nsd.conf
+[root@server0 ~]# cat /etc/httpd/conf.d/nsd.conf
+<Virtualhost *:80>
+  ServerName server0.example.com
+  DocumentRoot /var/www/test01
+</Virtualhost>
+<Virtualhost *:80>
+  ServerName www0.example.com
+  DocumentRoot /var/www/test02
+</Virtualhost>
+<Virtualhost *:80>
+  ServerName webapp0.example.com
+  DocumentRoot /var/www/test03
+</Virtualhost>
+
+[root@server0 ~]# echo '<h1>复仇者联盟' > /var/www/test01/index.html
+[root@server0 ~]# echo '<h1>琅琊榜30' >  /var/www/test02/index.html
+[root@server0 ~]# echo '<h1>30春风里不如你' >  /var/www/test03/index.html
+[root@server0 ~]# systemctl restart httpd
+
+
+
+案例2:为虚拟机 server 配置Web访问控制
+在 Web 网站 http://server0.example.com 的 DocumentRoot 目录下创建一个名为 private 的子目录，要求如下：
+1）在server0.example.com的DocumentRoot目录下，private的子目录里书写网页文件index.html内容为  不许偷看丫
+2）此页面只能在本机浏览，但是从其他系统不能访问这个目录的内容
+[root@server0 ~]# mkdir /var/www/test01/private
+[root@server0 ~]# echo '<h1>不许偷看丫' > /var/www/test01/private/index.html
+[root@server0 ~]# cat /var/www/test01/private/index.html
+<h1>不许偷看丫
+
+[root@server0 ~]# vim /etc/httpd/conf.d/nsd02.conf
+[root@server0 ~]# cat /etc/httpd/conf.d/nsd02.conf
+<Directory /var/www/test01/private/>
+  Require ip 172.25.0.11
+</Directory>
+
+[root@server0 ~]# systemctl restart httpd
+[root@server0 ~]# firefox server0.example.com/private
+
+
+案例3:为虚拟机 server 使用自定Web根目录
+
+调整 Web 站点 http://server0.example.com 的网页目录，要求如下：
+1）新建目录 /webroot，作为此站点新的网页目录
+2）确保站点 http://server0.example.com  仍然可访问
+[root@server0 ~]# mkdir /webroot
+[root@server0 ~]# echo '<h1>wo shi webroot'  > /webroot/index.html
+[root@server0 ~]# cat /webroot/index.html
+<h1>wo shi webroot
+
+[root@server0 ~]# vim /etc/httpd/conf.d/nsd.conf
+[root@server0 ~]# head -4 /etc/httpd/conf.d/nsd.conf
+<Virtualhost *:80>
+  ServerName server0.example.com
+  DocumentRoot /webroot
+</Virtualhost>
+
+[root@server0 ~]# vim /etc/httpd/conf.d/nsd02.conf 
+[root@server0 ~]# cat /etc/httpd/conf.d/nsd02.conf
+<Directory /var/www/test01/private/>
+  Require ip 172.25.0.11
+</Directory>
+<Directory /webroot>
+  Require all granted
+</Directory>
+
+[root@server0 ~]# systemctl restart httpd
+
+[root@server0 ~]# ls -Zd /var/www
+drwxr-xr-x. root root system_u:object_r:httpd_sys_content_t:s0 /var/www
+[root@server0 ~]# ls -Zd /webroot
+drwxr-xr-x. root root unconfined_u:object_r:default_t:s0 /webroot
+[root@server0 ~]# chcon -R --reference=/var/www   /webroot
+
+
+
+案例4：为虚拟机 server 部署动态WSGI站点
+为站点 webapp0.example.com 配置提供动态Web内容，要求如下：
+1）此虚拟主机侦听在端口8909
+2）测试网页从以下地址下载，不要作任何更改http://classroom/pub/materials/webinfo.wsgi 
+3）从浏览器访问 http://webapp0.example.com:8909 可接收到动态生成的 Web 页面
+[root@server0 ~]# cd /var/www/test03
+[root@server0 test03]# wget http://classroom/pub/materials/webinfo.wsgi 
+--2018-07-16 20:10:42--  http://classroom/pub/materials/webinfo.wsgi
+正在解析主机 classroom (classroom)... 172.25.254.254
+正在连接 classroom (classroom)|172.25.254.254|:80... 已连接。
+已发出 HTTP 请求，正在等待回应... 200 OK
+长度：397
+正在保存至: “webinfo.wsgi”
+
+100%[=====================================>] 397         --.-K/s 用时 0s      
+
+2018-07-16 20:10:42 (28.3 MB/s) - 已保存 “webinfo.wsgi” [397/397])
+
+[root@server0 test03]# vim /etc/httpd/conf.d/nsd.conf
+[root@server0 test03]# cat /etc/httpd/conf.d/nsd.conf
+<Virtualhost *:80>
+  ServerName server0.example.com
+  DocumentRoot /webroot
+</Virtualhost>
+<Virtualhost *:80>
+  ServerName www0.example.com
+  DocumentRoot /var/www/test02
+</Virtualhost>
+<Virtualhost *:80>
+  ServerName webapp0.example.com
+  DocumentRoot /var/www/test03
+  Alias / /var/www/test03/webinfo.wsgi
+</Virtualhost>
+
+[root@server0 test03]# systemctl restart httpd
+[root@server0 test03]# firefox webapp0.example.com
+
+[root@server0 test03]# yum -y install mod_wsgi
+
+[root@server0 test03]# vim /etc/httpd/conf.d/nsd.conf 
+[root@server0 test03]# cat /etc/httpd/conf.d/nsd.conf
+<Virtualhost *:80>
+  ServerName server0.example.com
+  DocumentRoot /webroot
+</Virtualhost>
+<Virtualhost *:80>
+  ServerName www0.example.com
+  DocumentRoot /var/www/test02
+</Virtualhost>
+<Virtualhost *:80>
+  ServerName webapp0.example.com
+  DocumentRoot /var/www/test03
+  WsgiScriptAlias / /var/www/test03/webinfo.wsgi
+</Virtualhost>
+
+[root@server0 test03]# systemctl restart httpd
+[root@server0 test03]# firefox webapp0.example.com
+
+[root@server0 test03]# vim /etc/httpd/conf.d/nsd.conf 
+[root@server0 test03]# cat /etc/httpd/conf.d/nsd.conf
+<Virtualhost *:80>
+  ServerName server0.example.com
+  DocumentRoot /webroot
+</Virtualhost>
+<Virtualhost *:80>
+  ServerName www0.example.com
+  DocumentRoot /var/www/test02
+</Virtualhost>
+Listen 8909
+<Virtualhost *:8909>
+  ServerName webapp0.example.com
+  DocumentRoot /var/www/test03
+  WsgiScriptAlias / /var/www/test03/webinfo.wsgi
+
+[root@server0 test03]# semanage port -a -t http_port_t  -p tcp  8909
+[root@server0 test03]# semanage port -l | grep http
+http_cache_port_t              tcp      8080, 8118, 8123, 10001-10010
+http_cache_port_t              udp      3130
+http_port_t                    tcp      8909, 80, 81, 443, 488, 8008, 8009, 8443, 9000
+pegasus_http_port_t            tcp      5988
+pegasus_https_port_t           tcp      5989
+[root@server0 test03]# 
+
+[root@server0 test03]# systemctl restart httpd
+[root@server0 test03]# firefox webapp0.example.com:8909
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

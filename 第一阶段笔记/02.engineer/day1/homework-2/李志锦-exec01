@@ -1,0 +1,151 @@
+例1.
+   vim /etc/hostname
+     server0.example.com
+ 
+   nmcli connection modify 'System eth0' ipv4.method manual 
+ipv4.addresses '172.25.0.11/24 172.25.0.254' connection.autoconnect 
+    
+   vim /etc/resolv.conf 
+    nameserver  172.25.254.254
+
+例2.
+   vim /etc/hostname
+    desktop0.example.com
+
+   nmcli connection modify 'System eth0' ipv4.method manual 
+ipv4.addresses '172.25.0.10/24 172.25.0.254'connection.autoconnect
+
+   vim /etc/resolv.conf
+    nameserver 172.25.254.254
+
+例3.
+   vim /etc/yum.repos.d/*.repo
+   
+    [ * ]
+   name=*
+   baseurl=http://classroom.example.com/content/rhel7.0/x86_64/dvd
+   enabled=1
+   gpgcheck=0
+
+   yum repolist
+
+   yum -y install http vsftpd
+
+例4.
+   vim /etc/yum.repos.d/*.repo
+
+    [ * ]
+   name=*
+   baseurl=http://classroom.example.com/content/rhel7.0/x86_64/dvd
+   enabled=1
+   gpgcheck=0
+
+   yum repolist
+
+   yum -y httpd vsftpd
+
+例5.
+    mkdir /nsddir/
+    touch /nsddir/readme.txt
+
+    echo 'I love Linux' > /nsddir/readme.txt
+
+    mv  /nsddir/readme.txt  /nsddir/mylove.txt
+
+    cp -r /etc/passwd /boot /etc/group  /nsddir
+
+    vim /etc/hostname
+    server.example.com
+    cp /etc/hostname  /nsddir
+
+    cp /etc/resolv.conf  /nsddir
+
+例6.
+    mkdir  /nsd/test
+
+    echo 'NSD Student' > /nsd/test/nsd.txt
+
+    cp /nsd/test/nsd.txt  /root/tedu.txt
+
+    vim /etc/hostname
+        student0.example.com
+
+    cp -r /etc/passwd  /etc/resolv.conf  /etc/hostname   /nsd/test/
+
+    mv /nsd/test/hostname   /nsd/test/hn.txt
+
+    mkdir -p  /nsd/test/kernel
+
+    find /boot/ -name vm* -exec cp -r {} /nsd/test/kernel/ \;
+
+例7.find / -user student -type f -exec cp {} /root/findfiles/  \;
+    
+   find /boot/ -type f  -size +10M  -exec cp {} /opt/  \;
+
+   find /boot/ -name vm* -type f
+
+   find /boot/ -type l
+
+   find /etc/  -name *tab -type f
+例8.
+    grep seismic /usr/share/dict/words   > /opt/nds18.txt
+
+    uname -r > /root/version.txt
+
+    cat /etc/redhat-release >> /root/version.txt
+
+    hostname >> /root/version.txt
+
+    grep ^UUID /etc/fstab > /root/fstab.txt
+
+    grep bash$ /etc/passwd > /opt/pass.txt
+
+    cp /etc/login.defs  ./init.txt
+
+    grep -v ^# ./init.txt | grep -v ^$   > ./init2.txt
+例9.
+    tar -zcf  boothome.tar.gz /boot  /home
+    
+    tar -tf boothome.tar.gz
+
+    tar -xf  boothome.tar.gz -C  /root/boothome/
+
+    tar -jcf  /root/backup.tar.bz2  /usr/local
+例10.
+    useradd alex -u 3456 -p flectrag
+
+     groupadd adminuser
+     useradd -G adminuser natasha
+     useradd -G adminuser harry
+     useradd -s /sbin/nologin sarah
+     echo flectra | passwd --stdin natasha
+     echo flectra | passwd --stdin harry
+     echo flectra | passwd --stdin sarsh
+例11.
+    groupadd stugrp
+     useradd lily
+     useradd zhangsan
+     gpasswd -a lily stugrp
+     gpasswd -a zhangsan stugrp
+     gpasswd -a root stugrp
+     gpasswd -d lily stugrp
+
+例12.
+    yum -y install chrony
+    vim /etc/chrony.conf 
+    #server 0.rhel.pool.ntp.org iburst    
+    #server 1.rhel.pool.ntp.org iburst     
+    #server 2.rhel.pool.ntp.org iburst     
+    server classroom.example.com iburst
+    systemctl restart chronyd
+    systemctl enable chronyd
+
+例13.
+    crontab -e -u natasha
+    echo ‘23 14 * * *  /bin/echo  hiya' > /var/log/crond
+    systemctl  restart  crond
+    systemctl  enable  crond
+
+
+
+

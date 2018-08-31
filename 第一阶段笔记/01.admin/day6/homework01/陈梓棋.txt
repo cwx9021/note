@@ -1,0 +1,178 @@
+案例练习,准备:
+            rht-vmctl  reset  classroom
+            rht-vmctl  reset  server
+	       rht-vmctl  reset  desktop
+######################################################
+
+案例1:指定yum软件源
+为 server0 指定可用的 yum 软件源
+– YUM软件库的地址为 http://classroom.example.com/content/rhel7.0/x86_64/dvd/
+– 将此配置为虚拟机 server0 的默认软件仓库
+– 确认可用的仓库列表
+– 利用yum仓库安装xeyes
+[root@server0 ~]# vim /etc/yum.repos.d/server0.repo
+[root@server0 ~]# cat /etc/yum.repos.d/server0.repo
+[server0]
+names=server0
+baseurl=http://classroom.example.com/content/rhel7.0/x86_64/
+enabled=1
+gpgcheck=0
+[root@server0 ~]# yum repolist 
+已加载插件：langpacks
+源 'server0' 在配置文件中未指定名字，使用标识代替
+http://classroom.example.com/content/rhel7.0/x86_64/repodata/repomd.xml: [Errno 14] HTTP Error 404 - Not Found
+正在尝试其它镜像。
+http://classroom.example.com/content/rhel7.0/x86_64/repodata/repomd.xml: [Errno 14] HTTP Error 404 - Not Found
+正在尝试其它镜像。
+源标识                                源名称                                状态
+server0                               server0                               0
+repolist: 0
+[root@server0 ~]# vim /etc/yum.repos.d/server0.repo
+[root@server0 ~]# yum repolist 
+已加载插件：langpacks
+源 'server0' 在配置文件中未指定名字，使用标识代替
+server0                                                  | 4.1 kB     00:00     
+(1/2): server0/group_gz                                    | 134 kB   00:00     
+(2/2): server0/primary_db                                  | 3.4 MB   00:00     
+源标识                               源名称                                状态
+server0                              server0                               4,305
+repolist: 4,305
+[root@server0 ~]# yum install xeyes
+已加载插件：langpacks
+源 'server0' 在配置文件中未指定名字，使用标识代替
+
+正在安装:
+ xorg-x11-apps        x86_64        7.7-6.el7              server0        304 k
+
+
+案例2：chmod权限设置
+    1）以root用户新建/nsddir/目录，在该目录下新建文件readme.txt
+[root@server0 ~]# mkdir /nsddir
+[root@server0 ~]# touch /nsddir/ readme.txt
+
+
+    2）使用户zhangsan能够在/nsddir/目录下创建/删除子目录
+
+[root@server0 ~]# chmod u=w /nsddir
+[root@server0 ~]# ls -ld /nsddir
+d-w-r-xr-x. 2 root root 6 7月   5 19:16 /nsddir
+
+
+    3）使用户zhangsan能够修改/nsddir/readme.txt文件的容
+  [root@server0 ~]# chmod u=w /nsddir/readme.txt
+[root@server0 ~]# touch /nsddir/readme.txt
+[root@server0 ~]# chmod u=w /nsddir/readme.txt
+[root@server0 ~]# ls -ld /nsddir/readme.txt
+--w-r--r--. 1 root root 0 7月   5 20:38 /nsddir/readme.txt
+
+ 
+案例3：chown归属设置
+    1）新建/tarena1目录
+	a）将属主设为gelin01，属组设为tarena组
+	b）使用户gelin01对此目录具有rwx权限，其他人对此目录无任何权限
+[root@server0 ~]#mkdir /nsd05
+[root@server0 ~]# useradd gelin01
+[root@server0 ~]# groupadd tarena
+[root@server0 ~]# chown gelin01:tarena /nsd05
+[root@server0 ~]# chmod u=rwx /nsd05
+[root@server0 ~]# ls -ld /nsd08
+[root@server0 ~]# ls -ld /nsd05
+drwxr-xr-x. 2 gelin01 tarena 6 7月   5 19:48 /nsd05
+
+
+
+    2）使用户gelin02能进入、查看/tarena1文件夹（提示：将gelin02加入所属组）
+
+[root@server0 ~]# mkdir /tarena1
+[root@server0 ~]# gpasswd -a gelin02 tarenal 
+root@server0 ~]# ls -ld /tarena1
+正在将用户“gelin02”加入到“tarenal”组中
+drwxr-xr-x. 2 gelin02 tarenal 6 7月   5 20:05 /tarena1
+
+    3）新建/tarena2目录
+	a）将属组设为tarena
+	b）使tarena组的任何用户都能在此目录下创建、删除文件
+[root@server0 ~]# mkdir /tarena2
+[root@server0 ~]# chmod u=rwx  /tarena
+[root@server0 ~]# chmod u=rwx  /tarena2
+[root@server0 ~]# ls -ld /tarena2
+drwxr-xr-x. 2 root root 6 7月   5 20:15 /tarena2
+
+    4）新建/tarena/public目录
+	a）使任何用户对此目录都有rwx权限
+	b）拒绝zhangsan进入此目录，对此目录无任何权限
+
+[root@server0 ~]# setfacl -m u:zhangsan:--- /tarena/public^C
+[root@server0 ~]# useradd zhangsan
+[root@server0 ~]# setfacl -m u:zhangsan:--- /tarena/public
+[root@server0 ~]# ls -ld /tarena/public
+drwxrwxrwx+ 2 root root 6 7月   5 20:24 /tarena/public
+
+案例4:权限设置
+	1、创建文件夹/data/test,设置目录的访问权限，使所有者和所属组具备读写执行的权限；其他人无任何权限。
+[root@server0 ~]# mkdir -p /data/test
+[root@server0 ~]# chmod u=rwx /data/test
+[root@server0 ~]# ls -ld /data/test
+drwxr-xr-x. 2 root root 6 7月   5 20:42 /data/test
+
+
+	2、递归修改文件夹/data/test的归属使所有者为zhangsan，所属组为tarena。
+[root@room6pc22 ~]# mkdir -p /data/test
+[root@room6pc22 ~]# groupadd tarena
+[root@room6pc22 ~]# useradd zhangsan
+[root@room6pc22 ~]# chown zhangsan:tarena /data/test
+
+
+	3、请实现在test目录下，新建的所有子文件或目录的所属组都会是tarena。
+[root@room6pc22 ~]# chown :tarena /data/test
+[root@room6pc22 ~]# ls -ld /data/test
+drwxr-xr-x 2 zhangsan tarena 4096 7月   6 08:09 /data/test
+[root@room6pc22 ~]# id data/test
+id: data/test: no such user
+[root@room6pc22 ~]# chmod g+s tarena
+[root@room6pc22 ~]# chmod g+s /data/test
+[root@room6pc22 ~]# ls -ld /data/test
+drwxr-sr-x 2 zhangsan tarena 4096 7月   6 08:09 /data/test
+
+
+
+
+	4、为lisi创建ACL访问权限，使得lisi可以查看/etc/shadow文件
+
+
+[root@room6pc22 ~]# useradd lisi
+[root@room6pc22 ~]# setfacl -m u:lisi:r /etc/shadow
+[root@room6pc22 ~]# getfacl /etc/shadow
+getfacl: Removing leading '/' from absolute path names
+# file: etc/shadow
+# owner: root
+# group: root
+user::---
+user:lisi:r--
+group::---
+mask::r--
+other::---
+
+
+案例5：绑定到LDAP验证服务
+
+ –  使用系统 classroom.example.com 提供的LDAP服务
+ –  验证服务的基本DN是：dc=example,dc=com
+ –  账户信息和验证信息都是由 LDAP 提供的
+ –  连接要使用证书加密，证书可以在下面的链接下载：
+      http://classroom.example.com/pub/example-ca.crt 
+ –  确认本地可以识别ldapuser0用户
+[root@server0 ~]# yum  -y  install sssd
+已加载插件：langpacks
+[root@server0 ~]# yum  -y install authconfig-gtk
+已加载插件：langpacks
+root@server0 ~]# authconfig-gtk
+Job for sssd.service failed. See 'systemctl status sssd.service' and 'journalctl -xn' for details.
+[root@server0 ~]# systemctl restart sssd
+Job for sssd.service failed. See 'systemctl status sssd.service' and 'journalctl -xn' for details.
+[root@server0 ~]# systemctl enable sssd
+[root@server0 ~]# grep ldapuser0 /etc/passwd
+[root@server0 ~]# id ldpuser0
+
+
+

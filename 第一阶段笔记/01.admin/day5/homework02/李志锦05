@@ -1,0 +1,80 @@
+1.nmcli connection modify 'System eth0' ipv4.method manual ipv4.addresses      '172.25.0.120/24   172.25.0.254'  connection.autoconnect 
+  
+  vim /etc/resolv.conf
+   nameserver  172.25.254.254
+
+2.vim  /etc/yum.repos.d/*.repo
+     [ * ]
+    name=*
+    baseurl=http://classroom.example.com/content/rhel7.0/x86_64/dvd
+    enabled=1
+    gpgcheck=0
+
+   yum  repolist
+
+   yum -y install system-config-kickstart 
+
+3.grep root /etc/passwd > /opt/root.txt
+  
+  grep nologin /etc/passwd >> /opt/root.txt
+
+4.mkdir  /root/boothome   /root/usrsbin
+  tar -zcf  /boothome.tar.gz /boot  /home
+  tar -tf   /boothome.tar.gz
+  tar -xf   /boothome.tar.gz /root/boothome
+  tar -jcf  /usrsbin.tar.bz2 /usr/sbin
+  tar -tf   /usrsbin.tar.bz2
+  tar -xf   /usrsbin.tar.bz2 /root/usrsbin
+
+5.useradd  stu01
+  cat -n /etc/passwd  /etc/shadow | tail -1
+  ls -lhd /home/
+  echo 12345 | passwd --stdin stu01
+
+6.useradd -d /opt/nsd01  nsd01
+  
+  useradd -u 1234 -s /sbin/nologin sys01
+  
+  echo '密码' | passwd --stdin sys01
+  切换到nsd01用户
+  su sys01  输入 '密码' 登陆
+  useradd -g users admin -G adm root admin
+
+7.passwd nsd01
+   123456
+
+  echo '654321' | passwd --stdin nsd01
+
+8.useradd -d /opt/home03
+
+  etho 'redhat' | passwd --stdin nsd03
+
+  usermod -d /home/nsd03  nsd03
+
+  usermod -s /bin/bash   sys01
+
+9.groupadd stugrp
+
+  useradd user01
+  useradd root
+  useradd zhangsan
+  gpasswd -a user01 root zhangsan stugrp
+ 
+  gpasswd -d user01 stugrp
+
+10.修改/etc/chrony.conf配置文件
+   将server 0.rhel.pool.ntp.org iburst
+    server 1.rhel.pool.ntp.org iburst
+    server 2.rhel.pool.ntp.org iburst
+    server 3.rhel.pool.ntp.org iburst
+  改成
+    #server 0.rhel.pool.ntp.org iburst
+    #server 1.rhel.pool.ntp.org iburst
+    #server 2.rhel.pool.ntp.org iburst
+    server  classroom.example.com iburst
+  systemctl restart chronyd
+  systemctl enable chronyd
+  
+
+
+  

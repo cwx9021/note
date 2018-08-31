@@ -1,0 +1,306 @@
+案例1:为虚拟机 server 配置以下静态地址参数
+– 主机名:server0.example.com
+– IP地址:172.25.0.11
+– 子网掩码:255.255.255.0
+– 默认网关:172.25.0.254
+– DNS服务器:172.25.254.254
+[root@server0 ~]# echo sersver0.example.com >> /etc/hostname
+[root@server0 ~]# nmcli connection modify 'System eth0' ipv4.method manual ipv4.addresses '172.25.0.11/24 172.25.0.254' connection.autoconnect yes
+[root@server0 ~]# vim /etc/resolv.conf 
+root@server0 ~]# cat /etc/sysconfig/network-scripts/ifcfg-eth0 
+DEVICE=eth0
+BOOTPROTO=none
+ONBOOT=yes
+TYPE=Ethernet
+USERCTL=yes
+IPV6INIT=no
+PERSISTENT_DHCLIENT=1
+IPADDR0=172.25.0.11
+PREFIX0=24
+GATEWAY0=172.25.0.254
+DEFROUTE=yes
+IPV4_FAILURE_FATAL=no
+
+案例2：设置SELinux保护
+为虚拟机 server0、desktop0 配置SELinux 
+  1）确保 SELinux 处于强制启用模式（permissive） 
+  2）在每次重新开机后，此设置必须仍然有效
+[root@server0 ~]# vim /etc/selinux/config 
+[root@server0 ~]# getenforce 
+Enforcing
+[root@server0 ~]# setenforce 0
+[root@server0 ~]# getenforce 
+Permissive
+[root@desktop0 ~]# vim /etc/selinux/config 
+[root@desktop0 ~]# getenforce 
+Enforcing
+[root@desktop0 ~]# setenforce 0
+[root@desktop0 ~]# getenforce 
+Permissive
+
+
+案例3：自定义用户环境
+为系统 server0  创建自定义命令 
+  1）自定义命令的名称为 qstat 
+  2）此自定义命令将执行以下操作： /bin/ps -Ao pid,tt,user,fname,rsz 
+  3）此自定义命令对系统中的所有用户都有
+root@sersver0 ~]# vim /root/.bashrc 
+[root@sersver0 ~]# cat /root/.bashrc
+# .bashrc
+
+# User specific aliases and functions
+
+alias rm='rm -i'
+alias cp='cp -i'
+alias mv='mv -i'
+alias qstat=' /bin/ps -Ao pid,tt,user,fname,rsz'
+
+# Source global definitions
+if [ -f /etc/bashrc ]; then
+	. /etc/bashrc
+fi
+
+[root@sersver0 ~]# qstat
+  PID TT       USER     COMMAND    RSZ
+    1 ?        root     systemd   6428
+    2 ?        root     kthreadd     0
+    3 ?        root     ksoftirq     0
+    5 ?        root     kworker/     0
+    7 ?        root     migratio     0
+    8 ?        root     rcu_bh       0
+    9 ?        root     rcuob/0      0
+   10 ?        root     rcu_sche     0
+   11 ?        root     rcuos/0      0
+   12 ?        root     watchdog     0
+   13 ?        root     khelper      0
+   14 ?        root     kdevtmpf     0
+   15 ?        root     netns        0
+   16 ?        root     writebac     0
+   17 ?        root     kintegri     0
+   18 ?        root     bioset       0
+   19 ?        root     kblockd      0
+   20 ?        root     khubd        0
+   21 ?        root     md           0
+   24 ?        root     kswapd0      0
+   25 ?        root     ksmd         0
+   26 ?        root     khugepag     0
+   27 ?        root     fsnotify     0
+   28 ?        root     crypto       0
+   37 ?        root     kthrotld     0
+   38 ?        root     kworker/     0
+   39 ?        root     kmpath_r     0
+   40 ?        root     kpsmouse     0
+   59 ?        root     deferwq      0
+   81 ?        root     kauditd      0
+  165 ?        root     rpciod       0
+  224 ?        root     kworker/     0
+  225 ?        root     ata_sff      0
+  227 ?        root     scsi_eh_     0
+  228 ?        root     scsi_tmf     0
+  230 ?        root     scsi_eh_     0
+  231 ?        root     scsi_tmf     0
+  250 ?        root     xfsalloc     0
+  251 ?        root     xfs_mru_     0
+  252 ?        root     xfslogd      0
+  253 ?        root     xfs-data     0
+  254 ?        root     xfs-conv     0
+  255 ?        root     xfs-cil/     0
+  256 ?        root     kworker/     0
+  257 ?        root     xfsaild/     0
+  371 ?        root     systemd-  2392
+  373 ?        root     lvmetad   5264
+  387 ?        root     systemd-  4496
+  415 ?        root     vballoon     0
+  437 ?        root     ttm_swap     0
+  442 ?        root     qxl_gc       0
+  446 ?        root     auditd    1736
+  454 ?        root     audispd    712
+  459 ?        root     sedispat   908
+  473 ?        root     alsactl    924
+  475 ?        root     firewall 21188
+  478 ?        avahi    avahi-da  1412
+  479 ?        root     tuned    15796
+  480 ?        root     rsyslogd  2692
+  484 ?        avahi    avahi-da   380
+  500 ?        root     abrtd     5120
+  502 ?        root     iprupdat   280
+  504 ?        chrony   chronyd   1156
+  506 ?        root     abrt-wat  4364
+  510 ?        root     abrt-wat  4364
+  514 ?        libstor+ lsmd       368
+  548 ?        root     ModemMan  3240
+  549 ?        root     smartd    1768
+  598 ?        root     systemd-  1652
+  599 ?        root     accounts  3392
+  601 ?        rtkit    rtkit-da  1156
+  604 ?        dbus     dbus-dae  2460
+  677 ?        root     crond     1648
+  686 ?        root     ksmtuned   908
+  688 ?        root     atd        948
+  692 ?        root     iprinit    288
+  697 ?        root     gdm       4932
+  710 ?        root     gdm-simp  3472
+  711 ?        polkitd  polkitd  15324
+  716 ?        root     NetworkM  8312
+  757 ?        root     iprdump     92
+ 1161 ?        rpc      rpcbind   1200
+ 1180 ?        root     libvirtd 13692
+ 1227 ?        root     sshd      3540
+ 1276 ?        rpcuser  rpc.stat  1788
+ 1328 ?        root     dhclient 15588
+ 1420 ?        root     master    2176
+ 1425 ?        postfix  qmgr      3868
+ 1466 tty1     root     Xorg     17828
+ 1471 ttyS0    root     agetty     828
+ 1481 ?        root     gdm-sess  4508
+ 1485 ?        gdm      gnome-se 13684
+ 1488 ?        gdm      dbus-lau   584
+ 1489 ?        gdm      dbus-dae  1528
+ 1493 ?        gdm      at-spi-b  3172
+ 1497 ?        gdm      dbus-dae  1720
+ 1502 ?        gdm      at-spi2-  3348
+ 1507 ?        gdm      gnome-se 20764
+ 1516 ?        root     upowerd   4428
+ 1568 ?        gdm      gnome-sh 98600
+ 1569 ?        colord   colord    5596
+ 1575 ?        gdm      pulseaud  3400
+ 1583 ?        gdm      dconf-se  2440
+ 1596 ?        gdm      ibus-dae  5292
+ 1599 ?        gdm      ibus-dco  3396
+ 1603 ?        gdm      ibus-x11  8564
+ 1621 ?        gdm      ibus-eng  3324
+ 1626 ?        root     sshd      4948
+ 1629 pts/0    root     bash      3412
+ 1661 pts/0    root     dbus-lau   572
+ 1662 ?        root     dbus-dae  1300
+ 1666 ?        root     dconf-se  4492
+ 1928 ?        gdm      mission-  6776
+ 1937 ?        gdm      gnome-ke  3920
+ 1939 ?        gdm      goa-daem 16244
+30366 ?        root     sshd      5244
+30369 pts/1    root     bash      3100
+30571 ?        root     gconfd-2  2640
+30671 ?        root     httpd     4816
+30672 ?        apache   httpd     3680
+30673 ?        apache   httpd     3672
+30674 ?        apache   httpd     3220
+30675 ?        apache   httpd     3480
+30676 ?        apache   httpd     3672
+30749 ?        apache   httpd     3480
+30887 ?        root     kworker/     0
+30896 ?        postfix  pickup    3852
+31131 ?        root     kworker/     0
+31682 ?        root     kworker/     0
+31736 ?        root     sleep      364
+31737 ?        root     sshd      4948
+31741 pts/2    root     bash      2788
+31784 pts/2    root     ps        1276
+
+
+案例4：Shell脚本
+为系统 server0 书写脚本/root/user.sh
+运行脚本，可以判断用户输入的用户是否存在
+如果存在，输出用户基本信息（id  用户名）
+如果用户，不存在则创建用户，并输出用户创建成功[root@server0 ~]# vim /root/user.sh
+#! /bin/bash
+read -p '请输入要测试的用户：' a
+useradd $a &> /dev/null
+if [ $? -eq 0 ];then
+  echo 用户$a创建成功
+else
+ echo 用户已存在
+ id $a
+fi
+
+[root@server0 ~]# /root/user.sh
+-bash: /root/user.sh: 权限不够
+[root@server0 ~]# chmod +x /root/user.sh
+[root@server0 ~]# /root/user.sh
+请输入要测试的用户：lisi
+用户lisi创建成功
+[root@server0 ~]# lisi
+bash: lisi: 未找到命令...
+[root@server0 ~]# /root/user.sh
+请输入要测试的用户：lisi
+用户已存在
+uid=1001(lisi) gid=1001(lisi) 组=1001(lisi)
+
+
+
+案例5：实现本机server0 的Web服务
+  1）利用httpd软件搭建Web服务，页面显示内容为 小蝌蚪找妈妈 
+[root@sersver0 ~]# yum -y install httpd
+[root@sersver0 ~]# systemctl restart httpd
+[root@sersver0 ~]# systemctl enable httpd
+[root@sersver0 ~]# vim /var/www/html/index.html
+<font color=red><h1>小蝌蚪找妈妈
+[root@sersver0 ~]# firefox 172.25.0.11
+
+
+
+
+案例6：实现本机server0 的防火墙配置
+  1）修改虚拟机 server0防火墙配置，明确拒绝所有客户端访问
+root@sersver0 ~]# firewall-cmd --get-default-zone
+public
+[root@sersver0 ~]# firewall-cmd --set-default-zone=block
+success
+
+  2）在虚拟机 desktop0上测试能否访问server0 的Web服务
+[root@desktop0 ~]# firefox 172.25.0.11
+
+(process:30369): GLib-CRITICAL **: g_slice_set_config: assertion `sys_page_size == 0' failed
+
+  3）在虚拟机 desktop0上测试能否 ping通 虚拟机 server0
+root@desktop0 ~]# ping 172.25.0.11
+PING 172.25.0.11 (172.25.0.11) 56(84) bytes of data.
+From 172.25.0.11 icmp_seq=1 Destination Host Prohibited
+From 172.25.0.11 icmp_seq=2 Destination Host Prohibited
+From 172.25.0.11 icmp_seq=3 Destination Host Prohibited
+
+
+
+
+案例7：实现本机server0 的防火墙配置
+  1）修改虚拟机 server0防火墙配置，将默认区域修改为public
+[root@sersver0 ~]# firewall-cmd --set-default-zone=public
+success
+
+  2）在虚拟机 desktop0上测试能否访问server0 的Web服务
+[root@desktop0 ~]# firefox 172.25.0.11
+
+(process:30462): GLib-CRITICAL **: g_slice_set_config: assertion `sys_page_size == 0' failed
+
+
+  3）在虚拟机 desktop0上测试能否 ping通 虚拟机 server0
+[root@desktop0 ~]# ping 172.25.0.11
+PING 172.25.0.11 (172.25.0.11) 56(84) bytes of data.
+64 bytes from 172.25.0.11: icmp_seq=1 ttl=64 time=0.186 ms
+64 bytes from 172.25.0.11: icmp_seq=2 ttl=64 time=0.270 ms
+64 bytes from 172.25.0.11: icmp_seq=3 ttl=64 time=0.282 ms
+64 bytes from 172.25.0.11: icmp_seq=4 ttl=64 time=0.342 ms
+^C
+--- 172.25.0.11 ping statistics ---
+4 packets transmitted, 4 received, 0% packet loss, time 2999ms
+rtt min/avg/max/mdev = 0.186/0.270/0.342/0.055 ms
+
+
+案例8：实现本机server0 的防火墙配置
+  1）修改虚拟机 server0防火墙配置，将默认区域修改为public
+[root@sersver0 ~]# firewall-cmd --set-default-zone=public
+success
+
+  2）修改虚拟机 server0防火墙配置，在public区域中添加http服务
+[root@sersver0 ~]# firewall-cmd --permanent --add-service=http
+success
+[root@sersver0 ~]# firewall-cmd --reload
+success
+
+
+  3）在虚拟机 desktop0上测试能否访问server0 的Web服务
+[root@desktop0 ~]# firefox 172.25.0.11
+小蝌蚪找妈妈
+可以访问
+
+
+

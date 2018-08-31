@@ -1,0 +1,214 @@
+案例练习,准备:
+            rht-vmctl  reset  classroom
+            rht-vmctl  reset  server
+	       rht-vmctl  reset  desktop
+######################################################
+
+案例1:指定yum软件源
+为 server0 指定可用的 yum 软件源
+– YUM软件库的地址为 http://classroom.example.com/content/rhel7.0/x86_64/dvd/
+– 将此配置为虚拟机 server0 的默认软件仓库
+– 确认可用的仓库列表
+– 利用yum仓库安装xeyes
+[root@server0 ~]# ls /etc/yum.repos.d/
+rhel_dvd.repo
+[root@server0 ~]# rm  -f /etc/yum.repos.d/*.repo
+[root@server0 ~]# ls /etc/yum.repos.d/
+[root@server0 ~]# vim /etc/yum.repos.d/rhel7.repo
+[root@server0 ~]# cat /etc/yum.repos.d/rhel7.repo
+[rhel7]
+name=rhel7.0
+enabled=1
+baseurl=http://classroom.example.com/content/rhel7.0/x86_64/dvd/
+gpgcheck=0
+[root@server0 ~]# yum clean all
+[root@server0 ~]# yum repolist
+[root@server0 ~]# yum -y install xeyes
+[root@server0 ~]# rpm -q xorg-x11-apps.x86_64 0:7.7-6.el7 
+xorg-x11-apps-7.7-6.el7.x86_64
+
+[root@server0 ~]# yum -y remove xeyes
+[root@server0 ~]# rpm -q xorg-x11-apps.x86_64 0:7.7-6.el7 
+未安装软件包 xorg-x11-apps.x86_64 
+未安装软件包 0:7.7-6.el7 
+
+
+
+案例2：chmod权限设置
+    1）以root用户新建/nsddir/目录，在该目录下新建文件readme.txt
+    2）使用户zhangsan能够在/nsddir/目录下创建/删除子目录
+    3）使用户zhangsan能够修改/nsddir/readme.txt文件的容
+  [root@server0 ~]# mkdir /nsddir
+[root@server0 ~]# touch /nsddir/readme.txt
+[root@server0 ~]# useradd zhangsan
+[root@server0 ~]# ls -ld /nsddir
+drwxr-xr-x. 2 1001 root 23 7月   5 18:35 /nsddir
+[root@server0 ~]# ls -l /nsddir/readme.txt 
+-rw-r--r--. 1 1001 root 0 7月   5 18:35 /nsddir/readme.txt
+
+[root@server0 ~]# chmod 744 /nsddir/readme.txt
+[root@server0 ~]# ls -l /nsddir/readme.txt
+-rwxr--r--. 1 1001 root 0 7月   5 18:35 /nsddir/readme.txt
+
+[root@server0 ~]# chown -R zhangsan /nsddir
+[root@server0 ~]# ls -ld /nsddir
+drwxr-xr-x. 2 zhangsan root 23 7月   5 18:35 /nsddir
+[root@server0 ~]# ls -lR /nsddir
+/nsddir:
+总用量 0
+-rwxr--r--. 1 zhangsan root 0 7月   5 18:35 readme.txt
+
+ 
+案例3：chown归属设置
+    1）新建/tarena1目录
+	a）将属主设为gelin01，属组设为tarena组
+	b）使用户gelin01对此目录具有rwx权限，其他人对此目录无任何权限
+[root@server0 ~]# mkdir /tarena1
+[root@server0 ~]# useradd gelin01
+[root@server0 ~]# useradd gelin02
+[root@server0 ~]# groupadd tarena
+[root@server0 ~]# chown gelin01:tarena /tarena1/
+[root@server0 ~]# ls -ld /tarena1/
+drwxr-xr-x. 2 gelin01 tarena 6 7月   5 18:49 /tarena1/
+
+[root@server0 ~]# chmod -R 750 /tarena1/
+[root@server0 ~]# ls -ld /tarena1/
+drwxr-x---. 2 gelin01 tarena 6 7月   5 18:49 /tarena1/
+
+
+    2）使用户gelin02能进入、查看/tarena1文件夹（提示：将gelin02加入所属组）
+[root@server0 ~]# gpasswd -a gelin02 tarena
+正在将用户“gelin02”加入到“tarena”组中
+[root@server0 ~]# id gelin02
+uid=1004(gelin02) gid=1004(gelin02) 组=1004(gelin02),1005(tarena)
+
+    3）新建/tarena2目录
+	a）将属组设为tarena
+	b）使tarena组的任何用户都能在此目录下创建、删除文件
+[root@server0 ~]# mkdir /tarena2
+[root@server0 ~]# chown :tarena /tarena2
+[root@server0 ~]# ls -ld /tarena2
+drwxr-xr-x. 2 root tarena 6 7月   5 18:58 /tarena2
+[root@server0 ~]# chmod g=rwx /tarena2
+[root@server0 ~]# ls -ld /tarena2
+drwxrwxr-x. 2 root tarena 6 7月   5 18:58 /tarena2
+
+    4）新建/tarena/public目录
+	a）使任何用户对此目录都有rwx权限
+	b）拒绝zhangsan进入此目录，对此目录无任何权限
+[root@server0 ~]# mkdir -p /tarena/public
+[root@server0 ~]# chmod -R 777 /tarena/
+[root@server0 ~]# ls -ld /tarena/
+drwxrwxrwx. 3 root root 19 7月   5 19:03 /tarena/
+[root@server0 ~]# ls -lR /tarena/
+
+[root@server0 ~]# setfacl -m u:zhangsan:--- /tarena/
+[root@server0 ~]# getfacl /tarena/
+
+[zhangsan@server0 ~]$ ls /tarena
+ls: cannot open directory /tarena: Permission denied
+[zhangsan@server0 ~]$ cd /tarena
+
+案例4:权限设置
+	1、创建文件夹/data/test,设置目录的访问权限，使所有者和所属组具备读写执行的权限；其他人无任何权限。
+[root@server0 ~]# mkdir -p /data/test
+
+[root@server0 ~]# chmod -R 770 /data
+[root@server0 ~]# ls -ld /data
+drwxrwx---. 3 root root 17 7月   5 19:08 /data
+[root@server0 ~]# ls -lR /data
+/data:
+总用量 0
+drwxrwx---. 2 root root 6 7月   5 19:08 test
+
+	2、递归修改文件夹/data/test的归属使所有者为zhangsan，所属组为tarena。
+
+[root@server0 ~]# chown -R zhangsan:tarena /data/
+[root@server0 ~]# ls -ld /data/
+drwxrwx---. 3 zhangsan tarena 17 7月   5 19:08 /data/
+[root@server0 ~]# ls -lR /data/
+/data/:
+总用量 0
+drwxrwx---. 2 zhangsan tarena 6 7月   5 19:08 test
+
+	3、请实现在test目录下，新建的所有子文件或目录的所属组都会是tarena。
+[root@server0 ~]# chmod g+s /data/test/
+[root@server0 ~]# mkdir /data/test/testx2
+[root@server0 ~]# ls -ld /data/test/testx2
+drwxr-sr-x. 2 root tarena 6 7月   5 19:20 /data/test/testx2
+
+	4、为lisi创建ACL访问权限，使得lisi可以查看/etc/shadow文件
+[root@server0 ~]# ls -l /etc/shadow
+----------. 1 root root 1270 7月   5 18:49 /etc/shadow
+[root@server0 ~]# grep lisi /etc/passwd
+[root@server0 ~]# useradd lisi
+
+[root@server0 ~]# setfacl -m u:lisi:r-x /etc/shadow
+[root@server0 ~]# ls -l /etc/shadow
+----r-x---+ 1 root root 1297 7月   5 19:22 /etc/shadow
+[root@server0 ~]# getfacl /etc/shadow
+getfacl: Removing leading '/' from absolute path names
+# file: etc/shadow
+# owner: root
+# group: root
+user::---
+user:lisi:r-x
+group::---
+mask::r-x
+other::---
+
+
+案例5：绑定到LDAP验证服务
+
+ –  使用系统 classroom.example.com 提供的LDAP服务
+ –  验证服务的基本DN是：dc=example,dc=com
+ –  账户信息和验证信息都是由 LDAP 提供的
+ –  连接要使用证书加密，证书可以在下面的链接下载：
+      http://classroom.example.com/pub/example-ca.crt 
+ –  确认本地可以识别ldapuser0用户
+
+[root@server0 ~]# yum -y install sssd
+[root@server0 ~]# rpm -q sssd
+sssd-1.11.2-65.el7.x86_64
+
+[root@server0 ~]# yum -y install authconfig-gtk.x86_64 
+[root@server0 ~]# rpm -q authconfig-gtk
+   authconfig-gtk-6.2.8-8.el7.x86_64
+
+  [root@server0 ~]# authconfig-gtk 
+    身份&验证
+  	用户账户数据库（U）：LDAP
+         LDAP 搜索基础DN（B): dc=example,dc=com
+         LDAP 服务器（S）： classroom.example.com
+    |—_|  用TLS加密连接（T）   
+           下载CA证书（D） http://classroom.example.com/pub/example-ca.crt  
+ 认证配置
+   认证方法(H): LDAP密码
+ 重起服务 [root@server0 ~]# systemctl restart sssd
+	[root@server0 ~]# systemctl enable sssd
+	[root@server0 ~]# systemctl status sssd
+
+[root@server0 ~]# grep ldapuser0 /etc/passwd
+[root@server0 ~]# id ldapuser0
+uid=1700(ldapuser0) gid=1700(ldapuser0) 组=1700(ldapuser0)
+
+[root@server0 ~]# id ldapuser20
+uid=1720(ldapuser20) gid=1720(ldapuser20) 组=1720(ldapuser20)
+[root@server0 ~]# id ldapuser21
+id: ldapuser21: no such user
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

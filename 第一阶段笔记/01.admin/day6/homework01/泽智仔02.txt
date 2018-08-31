@@ -1,0 +1,164 @@
+案例练习,准备:
+            rht-vmctl  reset  classroom
+            rht-vmctl  reset  server
+	       rht-vmctl  reset  desktop
+######################################################
+
+案例1:指定yum软件源
+为 server0 指定可用的 yum 软件源
+– YUM软件库的地址为 http://classroom.example.com/content/rhel7.0/x86_64/dvd/
+– 将此配置为虚拟机 server0 的默认软件仓库
+– 确认可用的仓库列表
+– 利用yum仓库安装xeyes
+[root@server0 ~]# vim /etc/yum.repos.d/dvd.repos
+[root@server0 ~]# rm -rf /etc/yum.repos.d/*
+[root@server0 ~]# vim /etc/yum.repos.d/rhel7.repo
+[root@server0 ~]# cat /etc/yum.repos.d/rhel7.repo
+[rhel7]
+name=rhel7.0
+baseurl=http://classroom.example.com/content/rhel7.0/x86_64/dvd/
+enabled=1
+gpgcheck=0
+[root@server0 ~]# yum repolist 
+[root@server0 ~]# yum -y install xeyes
+
+
+
+案例2：chmod权限设置
+    1）以root用户新建/nsddir/目录，在该目录下新建文件readme.txt
+    2）使用户zhangsan能够在/nsddir/目录下创建/删除子目录
+    3）使用户zhangsan能够修改/nsddir/readme.txt文件的容
+[root@server0 ~]# mkdir /nsddir/
+[root@server0 ~]# touch /nsddir/readme.txt
+[root@server0 ~]# useradd zhangsan
+[root@server0 ~]# chmod o=rwx /nsddir/
+[root@server0 ~]# su - zhangsan
+上一次登录：四 7月  5 18:44:27 CST 2018pts/1 上
+[zhangsan@server0 ~]$ mkdir /nsddir/pjl
+[zhangsan@server0 ~]$ 
+
+[root@server0 ~]# chmod o=rwx /nsddir/readme.txt
+[zhangsan@server0 ~]$ echo 123 > /nsddir/readme.txt
+[zhangsan@server0 ~]$ cat /nsddir/readme.txt
+123
+
+ 
+案例3：chown归属设置
+    1）新建/tarena1目录
+	a）将属主设为gelin01，属组设为tarena组
+	b）使用户gelin01对此目录具有rwx权限，其他人对此目录无任何权限
+[root@server0 ~]# mkdir /tarenal
+[root@server0 ~]# useradd gelin01
+[root@server0 ~]# groupadd tarena
+[root@server0 ~]# chown gelin01:tarena /tarenal
+[root@server0 ~]# ls -ld /tarenal
+drwxr-xr-x. 2 gelin01 tarena 6 7月   5 18:49 /tarenal
+setfacl -m  u:zhangsan:rw  /nsddir/readme.txt
+[root@server0 ~]# ls -ld /tarena1/
+drwxr-x---. 2 gelin01 tarena 6 7月   5 18:51 /tarena1/
+    2）使用户gelin02能进入、查看/tarena1文件夹（提示：将gelin02加入所属组）
+[root@server0 ~]# useradd gelin02
+[root@server0 ~]# gpasswd -a gelin02 tarena
+正在将用户“gelin02”加入到“tarena”组中
+[root@server0 ~]# su - gelin02
+[gelin02@server0 ~]$ ls /tarenal
+
+
+    3）新建/tarena2目录
+	a）将属组设为tarena
+	b）使tarena组的任何用户都能在此目录下创建、删除文件
+[root@server0 ~]# mkdir /tarena2
+[root@server0 ~]# ls -ld /tarena2
+drwxr-xr-x. 2 root root 6 7月   5 19:00 /tarena2
+[root@server0 ~]# chown :tarena /tarena2
+[root@server0 ~]# ls -ld /tarena2
+drwxr-xr-x. 2 root tarena 6 7月   5 19:04 /tarena2
+[root@server0 ~]# setfacl -m g:tarena:rwx  /tarena2
+[root@server0 ~]# ls  -ld /tarena2
+drwxrwxr-x+ 2 root tarena 6 7月   5 19:04 /tarena2
+[root@server0 ~]# getfacl /tarena2
+getfacl: Removing leading '/' from absolute path names
+# file: tarena2
+# owner: root
+# group: tarena
+user::rwx
+group::r-x
+group:tarena:rwx
+mask::rwx
+other::r-x
+
+
+    4）新建/tarena/public目录
+	a）使任何用户对此目录都有rwx权限
+	b）拒绝zhangsan进入此目录，对此目录无任何权限
+[root@server0 ~]# mkdir -p /tarena/public
+[root@server0 ~]# chmod ugo=rwx /tarena/public
+[root@server0 ~]# ls -ld /tarena/public
+drwxrwxrwx. 2 root root 6 7月   5 19:07 /tarena/public
+[root@server0 ~]# setfacl -m u:zhangsan:--- /tarena/public
+[root@server0 ~]# getfacl  /tarena/public/
+getfacl: Removing leading '/' from absolute path names
+# file: tarena/public/
+# owner: root
+# group: root
+user::rwx
+user:zhangsan:---
+group::rwx
+mask::rwx
+other::rwx
+
+
+案例4:权限设置
+	1、创建文件夹/data/test,设置目录的访问权限，使所有者和所属组具备读写执行的权限；其他人无任何权限。
+	2、递归修改文件夹/data/test的归属使所有者为zhangsan，所属组为tarena。
+	3、请实现在test目录下，新建的所有子文件或目录的所属组都会是tarena。
+	4、为lisi创建ACL访问权限，使得lisi可以查看/etc/shadow文件
+[root@server0 ~]# mkdir -p  /data/test
+[root@server0 ~]# chmod ug=rwx,o=--- /data/test
+[root@server0 ~]# getfacl /data/test
+[root@server0 ~]# ls  -ld /data/test/
+drwxrwx---. 2 root root 6 7月   5 19:20 /data/test/
+[root@server0 ~]# chmod g+s /data/test
+[root@server0 ~]# ls -ld /data/test
+drwxrws---. 3 zhangsan tarena 15 7月   5 19:20 
+[root@server0 ~]# touch /data/test/1.txt
+[root@server0 ~]# ls -ld /data/test/1.txt
+-rw-r--r--. 1 root tarena 0 7月   5 19:26 /data/test/1.txt
+[root@server0 ~]# useradd lisi
+[root@server0 ~]# setfacl -m u:lisi:rx /etc/shadow
+[root@server0 ~]# getfacl /etc/shadow
+getfacl: Removing leading '/' from absolute path names
+# file: etc/shadow
+# owner: root
+# group: root
+user::---
+user:lisi:r--
+group::---
+mask::r--
+other::---
+
+案例5：绑定到LDAP验证服务
+
+ –  使用系统 classroom.example.com 提供的LDAP服务
+ –  验证服务的基本DN是：dc=example,dc=com
+ –  账户信息和验证信息都是由 LDAP 提供的
+ –  连接要使用证书加密，证书可以在下面的链接下载：
+      http://classroom.example.com/pub/example-ca.crt 
+ –  确认本地可以识别ldapuser0用户
+
+[root@server0 ~]# yum -y install sssd
+[root@server0 ~]# yum -y install authconfig-gtk
+[root@server0 ~]# authconfig-gtk
+[root@server0 ~]# systemctl restart sssd
+[root@server0 ~]# systemctl enable sssd
+[root@server0 ~]# grep ldapuser0 /etc/passwd
+[root@server0 ~]# id ldapuser0
+uid=1700(ldapuser0) gid=1700(ldapuser0) 组=1700(ldapuser0)
+[root@server0 ~]# id ldapuser8
+uid=1708(ldapuser8) gid=1708(ldapuser8) 组=1708(ldapuser8)
+[root@server0 ~]# id ldapuser18
+uid=1718(ldapuser18) gid=1718(ldapuser18) 组=1718(ldapuser18)
+[root@server0 ~]# id ldapuser20
+uid=1720(ldapuser20) gid=1720(ldapuser20) 组=1720(ldapuser20)
+
+
