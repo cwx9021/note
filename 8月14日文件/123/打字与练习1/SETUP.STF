@@ -1,0 +1,44 @@
+App Name   	计算机录入与排版技术-打字与练习
+App Version	2003-01-03 19:25:56
+Frame Caption	计算机录入与排版技术-打字与练习
+Dialog Caption Base	计算机录入与排版技术-打字与练习
+Usage String	用法:  Setup
+About Box String	计算机录入与排版技术-打字与练习\n\n此安装程序由 Visual FoxPro 安装向导创建。
+Check Modules	"Fox_4000001,Microsoft Visual FoxPro, graph, MS Graph, ed, MS Draw, msinfo, MS Info, MSOfficeWClass, Microsoft Office Manager, MOM Class, Office Shortcut Bar"
+MSAPPS Mode	local
+Suppress Serial Number Dialog
+Inf File Name	SETUP.INF
+Maximum Object ID	28
+Floppy Mode Root Object ID	2 : 1
+Maintenance Mode Root Object ID	3 : 1
+Batch Mode Root Object ID	2 : 1
+Setup Version	3.0.0.0
+
+ObjID	Install During Batch Mode	Title	Descr	Type	Data	Bmp Id	Vital	Shared	Dir Chang	Dest Dir	Check Directory
+1			搜寻前一版本	AppSearch	"""C:\WINCET\"", """", """", 12, ""yes"", ""yes"","					
+2		软盘安装		AppMainDlg	5				Yes	
+3		维护安装		CustomDlg	7					
+4										
+5	Yes		安装 计算机录入与排版技术-打字与练习 的所有文件	Group	7	"wizset32.dll, 111"				
+6										
+7	Yes	计算机录入与排版技术-打字与练习	计算机录入与排版技术-打字与练习 将被安装。	Group	8 9 10 11 12 13					
+8			*** 计算机录入与排版技术-打字与练习 文件	CopyFile	"Application,_0UO15MLV8"		vital			
+9			*** 计算机录入与排版技术-打字与练习 文件	CopySection	Application		vital			
+10			*** 计算机录入与排版技术-打字与练习 Windows 系统文件	Group	14 15		vital			
+11			Miscellanous files	Group	19		vital			
+12			*** 程序管理器项	Group	22		vital			
+13			Uninstall	Group	24 25 26 27					
+14	Yes			InstallShared	"Application - System,_0UO15MLVL,vfp6r,,8"					%M
+15	Yes			InstallShared	"Application - System,_0UO15MLVQ,vfp6rchs,,8"					%M
+16										
+17										
+18										
+19	Yes			CopyFile	"Misc,CetIco"					%D
+20										
+21										
+22	Yes		程序管理器图标	AddProgmanItemQuiet	"计算机录<计算机录入与排版技术>, 打字与练<打字与练习>, %swincet.exe, ""%s"", ""%s\cet.ico"","""","					%D
+23										
+24				AddRegData	"LOCAL,Software\Microsoft\Windows\CurrentVersion\Uninstall\计算机录入与排版技术-打字与练习 ,DisplayName,计算机录入与排版技术-打字与练习 ,REG_SZ"					
+25				AddRegData	"LOCAL,Software\Microsoft\Windows\CurrentVersion\Uninstall\计算机录入与排版技术-打字与练习 ,UninstallString,%s\setup\setup.exe,REG_SZ"					%d
+26				CopySection	"Setup"					%d\setup
+27				WriteTableFile	"setup.stf"					%d\setup

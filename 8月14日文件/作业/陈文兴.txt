@@ -1,0 +1,148 @@
+1，tar命令的常用选项
+-c：创建归档
+-x：释放归档
+-f：指定归档文件名称
+-z、-j、-J：调用 .gz、.bz2、.xz 格式的工具进行处理
+-t：显示归档中的文件清单
+-P：保持路径不变进行归档
+
+2，创建一个名为/root/backup.tar.bz2的归档文件，其中包含/usr/local目录的内容。
+tar -Pzcf  /root/backup.tar.bz2 /usr/local
+
+3，周期性任务
+命令是：  crontab
+选项 -e：   编辑
+-l：       查看
+-r：       清除
+为用户yaya配置一个定时任务，每天在本地时间晚上11：1执行操作 /bin/echo sleep
+  crontab -e -u yaya
+ 1 23 * * * /bin/echo sleep
+4，三个基本权限分别是什么？用数字如何表示？三个特殊权限分别是什么？各自的作用是什么？
+1读   允许查看内容            4读                  Set GID       继承父目录的所属组身份
+2写    允许修改内容           2写                  set UID      
+3执行   允许运行和切换        1执行                        
+
+5，创建一个目录/home/admins，要求如下：
+目录的组是adminuser；
+adminuser组的成员对此目录有读写和执行的权限，其它用户没有任何权限；
+在此目录中创建新的文件，其组的所有权会自动设置为adminuser组；
+用户之间不能修改彼此的文件的内容、属性。
+    mkdir /home/admins
+    groupadd adminuser
+    chown :adminuser /home/admins
+    chmod 2770 /home/admins
+    
+
+
+6，完成下列要求：
+6.1、创建文件夹/data/test,设置目录的访问权限，使所有者和所属组具备读写执行的权限；其他人无任何权限。
+mkdir /data/test
+chmod  770 /data/test
+
+6.2、递归修改文件夹/data/test的归属使所有者为zhangsan，所属组为tarena。
+useradd zhangsan ; groupadd tarena 
+chown -R zhangsan:tarena /data/test
+6.3、请实现在test目录下，新建的所有子文件或目录的所属组都会是tarena。
+    chmod g+s tarena
+6.4、为lisi创建ACL访问权限，使得lisi可以查看/etc/shadow文件
+useradd lisi 
+setfacl -m u:lisi:r /etc/shadow
+
+
+7，在NFS共享里，查看NFS资源的命令是什么？挂载NFS的命令格式如何写？
+   showmount -e            mount 服务器地址：文件夹路径  挂载点
+8，把一个逻辑分区/dev/vdb1格式化成xfs文件系统，实现该分区开启自动挂载，挂载点为/mnt/xfs；
+把/dev/vdb2的文件系统设为ext4，实现开机自动挂载，挂载点/mnt/mypart 
+   mkfs.xfs /dev/vdb1
+   vim /etc/fstab
+ /dev/vdb1 /mnt/xfs xfs defaults 0 0
+   mkfs.ext4 /dev/vdb2 
+vim /etc/fstab
+ /dev/vdb2 /mnt/mypart defaults 0 0
+
+
+9,在/dev/vdb3（大小为3G）上建一个名为systemvg的卷组，并将此卷组的PE大小设置为1M；
+在此卷组里新建一个名为vo的逻辑卷，大小为2G；
+将逻辑卷vo格式化为xfs文件系统，并实现开机自动挂载到/mnt/vo；
+创建一个voa的逻辑卷，大小为100个PE的大小；
+将voa格式化为ext4，并实现开机自动挂载到/mnt/voa；
+vgcreate systemvg /dev/vdb3
+lvcreate -n vo -L 2G systemvg
+mkfs.xfs /dev/systemvg/vo
+/dev/systemvg/vo   /mnt/vo  xfs defaults 0 0
+lvcreate -l 100 -n voa systemvg
+mkfs.ext4 /dev/systemvg/voa
+/dev/systemvg/voa  /mnt/voa  ext4 defaults 0 0
+
+
+
+
+10，在第9题的基础上，将逻辑卷vo的大小扩展到4G；（提示，/dev/vdb4的大小为3G）
+vgextend systemvg /dev/vdb4
+lvextend -L 4G /dev/systemvg/vo
+
+
+11，编写一个脚本/root/hello.sh，执行后显示一段话“Hello World ！！”
+ #!/bin/bash
+ echo "Hello World ！！"
+ 
+
+12，编写一个脚本/root/sysinfo.sh，执行后依次输出当前系统的版本信息，当前使用的内核版本、当前系统的主机名。
+  #!/bin/bash
+  echo  
+ uname  -r
+ hostname
+ 
+
+13，编写一个脚本useradd.sh，执行后可以添加一个系统用户，并设置密码；
+要求：用户名和密码使用变量定义，可自由赋值。
+#!/bin/bash
+[ -z $user ] && exit
+read -p "请输入密码：" pass
+pass=${pass:-123456}
+useradd $user
+echo "$pass" | passwd --stdin $user
+
+
+
+14，selinux的配置文件是什么？有几种状态？分别代表了什么意思？
+ 3种  enforing :强制启用
+      permission:宽松模式
+       disabled:彻底禁用
+
+15，IPv6地址的格式
+
+
+16，配置聚合连接的语句是？
+
+
+17，RHEL7的防火墙有哪些区域？它们的作用分别是什么？
+
+
+18，如何将防火墙的默认区域设置为trusted？
+firewall-amd --stdin default-zone=trusted
+
+19，如何通过配置防火墙的规则，拒绝172.33.0.0/24网段的任何访问？
+
+
+20，如何通过配置防火墙的规则，实现80端口转发的功能？
+
+
+21，虚拟web主机有哪几种？其配置文件的路径是什么？配置文件内的内容格式如何写？如何实现自定义的web根目录？
+
+
+
+22，RAID0、RAID1、RAID5、RAID6、RAID10各自的特点？
+
+
+
+23，DHCP服务的配置文件路径及内容如何书写？
+
+
+
+
+24，PXE装机，需要安装哪些服务支持？需要下载、配置哪些文件，这些文件分别是什么作用？
+
+
+
+
